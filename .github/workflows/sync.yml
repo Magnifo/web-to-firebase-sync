@@ -2,7 +2,7 @@ name: Sync Flight Data
 
 on:
   schedule:
-    - cron: '*/30 * * * *' # Run every 30 minutes
+    - cron: '*/10 * * * *' # Run every 30 minutes
   workflow_dispatch: # Allow manual trigger
 
 jobs:
