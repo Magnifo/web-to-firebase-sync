@@ -81,9 +81,9 @@ async function main() {
             const city = flight._sourceCity;
             const type = flight._fetchedType;
 
-            // Generate Key: YYYYMMDDHHMM_FlightNumber
+            // Generate Key: YYMMDDHHMM_FlightNumber
             // Ensure we capture this BEFORE deleting _fetchedDate
-            const dateKey = flight._fetchedDate ? flight._fetchedDate.replace(/-/g, '') : '00000000';
+            const dateKey = flight._fetchedDate ? moment(flight._fetchedDate, 'YYYY-MM-DD').format('YYMMDD') : '000000';
             const timeKey = flight.ST ? flight.ST.replace(/:/g, '') : '0000';
             const flightNumOriginal = flight.FlightNumber || 'UNKNOWN';
             const flightNumKey = flightNumOriginal.replace(/[^a-zA-Z0-9]/g, '');
@@ -150,9 +150,9 @@ async function main() {
             const stmMoment = moment.tz(stmString, 'M/D/YYYY h:mm:ss A HH:mm', 'Asia/Karachi'); // Adjust format to match input "1/7/2026 12:00:00 AM 00:05" logic
             // Actually, based on previous JSON, flight.Date is "1/7/2026 12:00:00 AM" and flight.ST is "00:05"
             // Let's parse strictly.
-            // Simplified: We have dateKey "20260107" and timeKey "0005".
-            const stmIso = moment.tz(`${dateKey} ${timeKey}`, 'YYYYMMDD HHmm', 'Asia/Karachi');
-            flight.stm = stmIso.format('YYYYMMDDHHmm');
+            // Simplified: We have dateKey "260107" and timeKey "0005".
+            const stmIso = moment.tz(`${dateKey} ${timeKey}`, 'YYMMDD HHmm', 'Asia/Karachi');
+            flight.stm = stmIso.format('YYMMDDHHmm');
 
             // 6. Add att field if ET exists (YYYYMMDDHHMM)
             // Handle date rollover (Next Day / Previous Day)
@@ -160,7 +160,8 @@ async function main() {
                 const etTimeKey = flight.ET.replace(/:/g, '');
 
                 // Create candidates
-                const attSameDay = moment.tz(`${dateKey} ${etTimeKey}`, 'YYYYMMDD HHmm', 'Asia/Karachi');
+                // UPDATED to match new dateKey format (YYMMDD)
+                const attSameDay = moment.tz(`${dateKey} ${etTimeKey}`, 'YYMMDD HHmm', 'Asia/Karachi');
                 const attPrevDay = attSameDay.clone().subtract(1, 'days');
                 const attNextDay = attSameDay.clone().add(1, 'days');
 
@@ -177,7 +178,7 @@ async function main() {
                     correctAtt = attNextDay;
                 }
 
-                flight.att = correctAtt.format('YYYYMMDDHHmm');
+                flight.att = correctAtt.format('YYMMDDHHmm');
             }
 
             // Final Cleanup: Remove Date and ST/ET after using them
