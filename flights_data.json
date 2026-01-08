@@ -540,9 +540,9 @@
         "flnr": "SV 726",
         "SubCat": "INT",
         "city_lu": "Jeddah",
-        "prem_lu": "On Time",
+        "prem_lu": "Arrived",
         "stm": "2601090020",
-        "att": "2601090024"
+        "att": "2601090025"
       },
       "2601090050_PF127": {
         "flnr": "PF 127",
@@ -592,9 +592,9 @@
         "flnr": "PK 842",
         "SubCat": "INT",
         "city_lu": "Jeddah",
-        "prem_lu": "On Time",
+        "prem_lu": "Delayed",
         "stm": "2601090330",
-        "att": "2601090356"
+        "att": "2601090425"
       },
       "2601090345_MNB430": {
         "flnr": "MNB430",
@@ -673,7 +673,8 @@
         "SubCat": "INT",
         "city_lu": "Manchester",
         "prem_lu": "Expected",
-        "stm": "2601090720"
+        "stm": "2601090720",
+        "att": "2601090647"
       },
       "2601090725_QR614": {
         "flnr": "QR 614",
@@ -696,17 +697,17 @@
         "prem_lu": "Expected",
         "stm": "2601090755"
       },
-      "2601090810_SV724": {
-        "flnr": "SV 724",
-        "SubCat": "INT",
-        "city_lu": "Riyadh",
-        "prem_lu": "Expected",
-        "stm": "2601090810"
-      },
       "2601090810_CZ6007": {
         "flnr": "CZ 6007",
         "SubCat": "INT",
         "city_lu": "Urumqi",
+        "prem_lu": "Expected",
+        "stm": "2601090810"
+      },
+      "2601090810_SV724": {
+        "flnr": "SV 724",
+        "SubCat": "INT",
+        "city_lu": "Riyadh",
         "prem_lu": "Expected",
         "stm": "2601090810"
       },
@@ -765,8 +766,9 @@
         "flnr": "PA 211",
         "SubCat": "INT",
         "city_lu": "Dubai",
-        "prem_lu": "Expected",
-        "stm": "2601090915"
+        "prem_lu": "Advanced",
+        "stm": "2601090915",
+        "att": "2601090810"
       },
       "2601090920_PF719": {
         "flnr": "PF 719",
@@ -1428,14 +1430,6 @@
         "stm": "2601081900",
         "att": "2601081903"
       },
-      "2601081900_PK309": {
-        "flnr": "PK 309",
-        "SubCat": "DOM",
-        "city_lu": "Karachi",
-        "prem_lu": "Departed",
-        "stm": "2601081900",
-        "att": "2601082004"
-      },
       "2601081900_FG308": {
         "flnr": "FG 308",
         "SubCat": "INT",
@@ -1443,6 +1437,14 @@
         "prem_lu": "Departed",
         "stm": "2601081900",
         "att": "2601082038"
+      },
+      "2601081900_PK309": {
+        "flnr": "PK 309",
+        "SubCat": "DOM",
+        "city_lu": "Karachi",
+        "prem_lu": "Departed",
+        "stm": "2601081900",
+        "att": "2601082004"
       },
       "2601081925_EY301": {
         "flnr": "EY 301",
@@ -1484,14 +1486,6 @@
         "stm": "2601082030",
         "att": "2601082047"
       },
-      "2601082050_9P675": {
-        "flnr": "9P 675",
-        "SubCat": "DOM",
-        "city_lu": "Karachi",
-        "prem_lu": "Check-In",
-        "stm": "2601082050",
-        "att": "2601090105"
-      },
       "2601082050_PK261": {
         "flnr": "PK 261",
         "SubCat": "INT",
@@ -1499,6 +1493,14 @@
         "prem_lu": "Departed",
         "stm": "2601082050",
         "att": "2601082127"
+      },
+      "2601082050_9P675": {
+        "flnr": "9P 675",
+        "SubCat": "DOM",
+        "city_lu": "Karachi",
+        "prem_lu": "Check-In Closed",
+        "stm": "2601082050",
+        "att": "2601090105"
       },
       "2601082120_PF718": {
         "flnr": "PF 718",
@@ -1528,9 +1530,9 @@
         "flnr": "PA 272",
         "SubCat": "INT",
         "city_lu": "Jeddah",
-        "prem_lu": "Check-In Closed",
+        "prem_lu": "Departed",
         "stm": "2601082315",
-        "att": "2601082315"
+        "att": "2601090032"
       },
       "2601082345_PK287": {
         "flnr": "PK 287",
@@ -1660,10 +1662,10 @@
         "prem_lu": "Expected",
         "stm": "2601090700"
       },
-      "2601090700_N680BA": {
-        "flnr": "N6 80BA",
+      "2601090700_9P700": {
+        "flnr": "9P 700",
         "SubCat": "INT",
-        "city_lu": "Shannon",
+        "city_lu": "Jeddah",
         "prem_lu": "Expected",
         "stm": "2601090700"
       },
@@ -1674,10 +1676,10 @@
         "prem_lu": "Expected",
         "stm": "2601090700"
       },
-      "2601090700_9P700": {
-        "flnr": "9P 700",
+      "2601090700_N680BA": {
+        "flnr": "N6 80BA",
         "SubCat": "INT",
-        "city_lu": "Jeddah",
+        "city_lu": "Shannon",
         "prem_lu": "Expected",
         "stm": "2601090700"
       },
@@ -1737,8 +1739,9 @@
         "flnr": "CZ 6008",
         "SubCat": "INT",
         "city_lu": "Urumqi",
-        "prem_lu": "Expected",
-        "stm": "2601090940"
+        "prem_lu": "On Time",
+        "stm": "2601090940",
+        "att": "2601090940"
       },
       "2601090945_9P671": {
         "flnr": "9P 671",
@@ -2726,6 +2729,13 @@
         "prem_lu": "",
         "stm": "2601090520"
       },
+      "2601090520_PK732": {
+        "flnr": "PK-732",
+        "SubCat": "INT",
+        "city_lu": "Jeddah",
+        "prem_lu": "",
+        "stm": "2601090520"
+      },
       "2601090530_EY298": {
         "flnr": "EY-298",
         "SubCat": "INT",
@@ -2746,13 +2756,6 @@
         "city_lu": "Jeddah",
         "prem_lu": "",
         "stm": "2601090605"
-      },
-      "2601090625_PK732": {
-        "flnr": "PK-732",
-        "SubCat": "INT",
-        "city_lu": "Jeddah",
-        "prem_lu": "",
-        "stm": "2601090625"
       },
       "2601090655_QR610": {
         "flnr": "QR-610",
@@ -2845,6 +2848,13 @@
         "prem_lu": "Cancelled",
         "stm": "2601091200"
       },
+      "2601091215_PA171": {
+        "flnr": "PA-171",
+        "SubCat": "INT",
+        "city_lu": "Jeddah",
+        "prem_lu": "",
+        "stm": "2601091215"
+      },
       "2601091215_PA201": {
         "flnr": "PA-201",
         "SubCat": "DOM",
@@ -2856,13 +2866,6 @@
         "flnr": "PA-401",
         "SubCat": "DOM",
         "city_lu": "Lahore",
-        "prem_lu": "",
-        "stm": "2601091215"
-      },
-      "2601091215_PA171": {
-        "flnr": "PA-171",
-        "SubCat": "INT",
-        "city_lu": "Jeddah",
         "prem_lu": "",
         "stm": "2601091215"
       },
@@ -2887,17 +2890,31 @@
         "prem_lu": "",
         "stm": "2601091355"
       },
-      "2601091515_9P843": {
+      "2601091440_9P843": {
         "flnr": "9P-843",
         "SubCat": "DOM",
         "city_lu": "Lahore",
         "prem_lu": "",
-        "stm": "2601091515"
+        "stm": "2601091440"
+      },
+      "2601091445_9P677": {
+        "flnr": "9P-677",
+        "SubCat": "DOM",
+        "city_lu": "Islamabad",
+        "prem_lu": "",
+        "stm": "2601091445"
       },
       "2601091525_FZ335": {
         "flnr": "FZ-335",
         "SubCat": "INT",
         "city_lu": "Dubai",
+        "prem_lu": "",
+        "stm": "2601091525"
+      },
+      "2601091525_PK502": {
+        "flnr": "PK-502",
+        "SubCat": "DOM",
+        "city_lu": "Turbat",
         "prem_lu": "",
         "stm": "2601091525"
       },
@@ -2908,17 +2925,17 @@
         "prem_lu": "",
         "stm": "2601091545"
       },
-      "2601091600_PA403": {
-        "flnr": "PA-403",
-        "SubCat": "DOM",
-        "city_lu": "Lahore",
-        "prem_lu": "",
-        "stm": "2601091600"
-      },
       "2601091600_G9546": {
         "flnr": "G9-546",
         "SubCat": "INT",
         "city_lu": "Sharjah",
+        "prem_lu": "",
+        "stm": "2601091600"
+      },
+      "2601091600_PA403": {
+        "flnr": "PA-403",
+        "SubCat": "DOM",
+        "city_lu": "Lahore",
         "prem_lu": "",
         "stm": "2601091600"
       },
@@ -2978,6 +2995,13 @@
         "prem_lu": "",
         "stm": "2601091845"
       },
+      "2601091900_PA405": {
+        "flnr": "PA-405",
+        "SubCat": "DOM",
+        "city_lu": "Lahore",
+        "prem_lu": "",
+        "stm": "2601091900"
+      },
       "2601091900_PA207": {
         "flnr": "PA-207",
         "SubCat": "DOM",
@@ -2985,12 +3009,12 @@
         "prem_lu": "",
         "stm": "2601091900"
       },
-      "2601091900_PA405": {
-        "flnr": "PA-405",
+      "2601091910_9P871": {
+        "flnr": "9P-871",
         "SubCat": "DOM",
-        "city_lu": "Lahore",
+        "city_lu": "Multan",
         "prem_lu": "",
-        "stm": "2601091900"
+        "stm": "2601091910"
       },
       "2601091955_9P847": {
         "flnr": "9P-847",
@@ -2999,19 +3023,19 @@
         "prem_lu": "",
         "stm": "2601091955"
       },
-      "2601092045_PK537": {
-        "flnr": "PK-537",
-        "SubCat": "DOM",
-        "city_lu": "Sukkur",
-        "prem_lu": "",
-        "stm": "2601092045"
-      },
       "2601092055_PK309": {
         "flnr": "PK-309",
         "SubCat": "DOM",
         "city_lu": "Islamabad",
         "prem_lu": "",
         "stm": "2601092055"
+      },
+      "2601092105_D7108": {
+        "flnr": "D7-108",
+        "SubCat": "INT",
+        "city_lu": "Kuala Lampur",
+        "prem_lu": "",
+        "stm": "2601092105"
       },
       "2601092105_EK602": {
         "flnr": "EK-602",
@@ -3020,10 +3044,10 @@
         "prem_lu": "",
         "stm": "2601092105"
       },
-      "2601092105_D7108": {
-        "flnr": "D7-108",
-        "SubCat": "INT",
-        "city_lu": "Kuala Lampur",
+      "2601092105_PK537": {
+        "flnr": "PK-537",
+        "SubCat": "DOM",
+        "city_lu": "Sukkur",
         "prem_lu": "",
         "stm": "2601092105"
       },
@@ -3048,6 +3072,13 @@
         "prem_lu": "",
         "stm": "2601092225"
       },
+      "2601092255_9P675": {
+        "flnr": "9P-675",
+        "SubCat": "DOM",
+        "city_lu": "Islamabad",
+        "prem_lu": "",
+        "stm": "2601092255"
+      },
       "2601092255_FZ329": {
         "flnr": "FZ-329",
         "SubCat": "INT",
@@ -3062,18 +3093,11 @@
         "prem_lu": "",
         "stm": "2601092255"
       },
-      "2601092255_9P675": {
-        "flnr": "9P-675",
-        "SubCat": "DOM",
-        "city_lu": "Islamabad",
-        "prem_lu": "",
-        "stm": "2601092255"
-      },
       "2601092330_PF146": {
         "flnr": "PF-146",
         "SubCat": "DOM",
         "city_lu": "Lahore",
-        "prem_lu": "",
+        "prem_lu": "Cancelled",
         "stm": "2601092330"
       },
       "2601092345_PK307": {
@@ -3094,7 +3118,7 @@
         "flnr": "PF-126",
         "SubCat": "DOM",
         "city_lu": "Islamabad",
-        "prem_lu": "",
+        "prem_lu": "Cancelled",
         "stm": "2601092359"
       },
       "2601100005_PF715": {
@@ -4135,17 +4159,17 @@
         "stm": "2601090200",
         "att": "2601090330"
       },
-      "2601090245_EK607": {
-        "flnr": "EK-607",
-        "SubCat": "INT",
-        "city_lu": "Dubai",
-        "prem_lu": "Now Check In",
-        "stm": "2601090245"
-      },
       "2601090245_G9549": {
         "flnr": "G9-549",
         "SubCat": "INT",
         "city_lu": "Sharjah",
+        "prem_lu": "Now Check In",
+        "stm": "2601090245"
+      },
+      "2601090245_EK607": {
+        "flnr": "EK-607",
+        "SubCat": "INT",
+        "city_lu": "Dubai",
         "prem_lu": "Now Check In",
         "stm": "2601090245"
       },
@@ -4167,7 +4191,7 @@
         "flnr": "FZ-332",
         "SubCat": "INT",
         "city_lu": "Dubai",
-        "prem_lu": "",
+        "prem_lu": "Now Check In",
         "stm": "2601090330"
       },
       "2601090420_QR605": {
@@ -4176,6 +4200,13 @@
         "city_lu": "Doha",
         "prem_lu": "",
         "stm": "2601090420"
+      },
+      "2601090510_EY297": {
+        "flnr": "EY-297",
+        "SubCat": "INT",
+        "city_lu": "Abu Dhabi",
+        "prem_lu": "",
+        "stm": "2601090510"
       },
       "2601090510_PC131": {
         "flnr": "PC-131",
@@ -4189,13 +4220,6 @@
         "SubCat": "INT",
         "city_lu": "Kuwait",
         "prem_lu": "Cancelled",
-        "stm": "2601090510"
-      },
-      "2601090510_EY297": {
-        "flnr": "EY-297",
-        "SubCat": "INT",
-        "city_lu": "Abu Dhabi",
-        "prem_lu": "",
         "stm": "2601090510"
       },
       "2601090515_PK731": {
@@ -4240,17 +4264,17 @@
         "prem_lu": "Cancelled",
         "stm": "2601090700"
       },
-      "2601090710_GF751": {
-        "flnr": "GF-751",
-        "SubCat": "INT",
-        "city_lu": "Bahrain",
-        "prem_lu": "",
-        "stm": "2601090710"
-      },
       "2601090710_9P670": {
         "flnr": "9P-670",
         "SubCat": "DOM",
         "city_lu": "Islamabad",
+        "prem_lu": "",
+        "stm": "2601090710"
+      },
+      "2601090710_GF751": {
+        "flnr": "GF-751",
+        "SubCat": "INT",
+        "city_lu": "Bahrain",
         "prem_lu": "",
         "stm": "2601090710"
       },
@@ -4260,13 +4284,6 @@
         "city_lu": "Lahore",
         "prem_lu": "",
         "stm": "2601090715"
-      },
-      "2601090800_PK302": {
-        "flnr": "PK-302",
-        "SubCat": "DOM",
-        "city_lu": "Lahore",
-        "prem_lu": "",
-        "stm": "2601090800"
       },
       "2601090810_F3830": {
         "flnr": "F3-830",
@@ -4331,17 +4348,17 @@
         "prem_lu": "",
         "stm": "2601091240"
       },
-      "2601091300_PF143": {
-        "flnr": "PF-143",
-        "SubCat": "DOM",
-        "city_lu": "Lahore",
-        "prem_lu": "Cancelled",
-        "stm": "2601091300"
-      },
       "2601091300_PF123": {
         "flnr": "PF-123",
         "SubCat": "DOM",
         "city_lu": "Islamabad",
+        "prem_lu": "Cancelled",
+        "stm": "2601091300"
+      },
+      "2601091300_PF143": {
+        "flnr": "PF-143",
+        "SubCat": "DOM",
+        "city_lu": "Lahore",
         "prem_lu": "Cancelled",
         "stm": "2601091300"
       },
@@ -4352,17 +4369,17 @@
         "prem_lu": "",
         "stm": "2601091315"
       },
-      "2601091315_XY638": {
-        "flnr": "XY-638",
-        "SubCat": "INT",
-        "city_lu": "Jeddah",
-        "prem_lu": "",
-        "stm": "2601091315"
-      },
       "2601091315_PA200": {
         "flnr": "PA-200",
         "SubCat": "DOM",
         "city_lu": "Islamabad",
+        "prem_lu": "",
+        "stm": "2601091315"
+      },
+      "2601091315_XY638": {
+        "flnr": "XY-638",
+        "SubCat": "INT",
+        "city_lu": "Jeddah",
         "prem_lu": "",
         "stm": "2601091315"
       },
@@ -4380,12 +4397,33 @@
         "prem_lu": "",
         "stm": "2601091400"
       },
-      "2601091555_9P842": {
+      "2601091400_PK302": {
+        "flnr": "PK-302",
+        "SubCat": "DOM",
+        "city_lu": "Lahore",
+        "prem_lu": "",
+        "stm": "2601091400"
+      },
+      "2601091440_PK340": {
+        "flnr": "PK-340",
+        "SubCat": "DOM",
+        "city_lu": "Faisalabad",
+        "prem_lu": "",
+        "stm": "2601091440"
+      },
+      "2601091520_9P842": {
         "flnr": "9P-842",
         "SubCat": "DOM",
         "city_lu": "Lahore",
         "prem_lu": "",
-        "stm": "2601091555"
+        "stm": "2601091520"
+      },
+      "2601091535_9P870": {
+        "flnr": "9P-870",
+        "SubCat": "DOM",
+        "city_lu": "Multan",
+        "prem_lu": "",
+        "stm": "2601091535"
       },
       "2601091600_PK308": {
         "flnr": "PK-308",
@@ -4436,17 +4474,17 @@
         "prem_lu": "",
         "stm": "2601091720"
       },
-      "2601091740_PK536": {
-        "flnr": "PK-536",
-        "SubCat": "DOM",
-        "city_lu": "Sukkur",
-        "prem_lu": "",
-        "stm": "2601091740"
-      },
       "2601091800_PA110": {
         "flnr": "PA-110",
         "SubCat": "INT",
         "city_lu": "Dubai",
+        "prem_lu": "",
+        "stm": "2601091800"
+      },
+      "2601091800_PK536": {
+        "flnr": "PK-536",
+        "SubCat": "DOM",
+        "city_lu": "Sukkur",
         "prem_lu": "",
         "stm": "2601091800"
       },
@@ -4457,26 +4495,33 @@
         "prem_lu": "",
         "stm": "2601091815"
       },
+      "2601091900_PF145": {
+        "flnr": "PF-145",
+        "SubCat": "DOM",
+        "city_lu": "Lahore",
+        "prem_lu": "Cancelled",
+        "stm": "2601091900"
+      },
       "2601091900_PF125": {
         "flnr": "PF-125",
         "SubCat": "DOM",
         "city_lu": "Islamabad",
-        "prem_lu": "",
+        "prem_lu": "Cancelled",
         "stm": "2601091900"
       },
       "2601091900_PK306": {
         "flnr": "PK-306",
         "SubCat": "DOM",
         "city_lu": "Lahore",
-        "prem_lu": "",
+        "prem_lu": "Cancelled",
         "stm": "2601091900"
       },
-      "2601091900_PF145": {
-        "flnr": "PF-145",
+      "2601092000_PK370": {
+        "flnr": "PK-370",
         "SubCat": "DOM",
-        "city_lu": "Lahore",
-        "prem_lu": "",
-        "stm": "2601091900"
+        "city_lu": "Islamabad",
+        "prem_lu": "Cancelled",
+        "stm": "2601092000"
       },
       "2601092000_PA208": {
         "flnr": "PA-208",
@@ -4492,19 +4537,19 @@
         "prem_lu": "",
         "stm": "2601092000"
       },
-      "2601092000_PK370": {
-        "flnr": "PK-370",
-        "SubCat": "DOM",
-        "city_lu": "Islamabad",
-        "prem_lu": "",
-        "stm": "2601092000"
-      },
       "2601092025_9P600": {
         "flnr": "9P-600",
         "SubCat": "INT",
         "city_lu": "Jeddah",
         "prem_lu": "",
         "stm": "2601092025"
+      },
+      "2601092035_9P846": {
+        "flnr": "9P-846",
+        "SubCat": "DOM",
+        "city_lu": "Lahore",
+        "prem_lu": "",
+        "stm": "2601092035"
       },
       "2601092045_PK729": {
         "flnr": "PK-729",
@@ -4513,10 +4558,10 @@
         "prem_lu": "",
         "stm": "2601092045"
       },
-      "2601092100_9P846": {
-        "flnr": "9P-846",
+      "2601092100_PK330": {
+        "flnr": "PK-330",
         "SubCat": "DOM",
-        "city_lu": "Lahore",
+        "city_lu": "Multan",
         "prem_lu": "",
         "stm": "2601092100"
       },
@@ -5381,8 +5426,9 @@
         "flnr": "TK-714",
         "SubCat": "INT",
         "city_lu": "Istanbul",
-        "prem_lu": "",
-        "stm": "2601090445"
+        "prem_lu": "Confirmed",
+        "stm": "2601090445",
+        "att": "2601090440"
       },
       "2601090525_9P587": {
         "flnr": "9P-587",
