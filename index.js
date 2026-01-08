@@ -19,7 +19,7 @@ try {
 const db = admin.database();
 
 // Configuration
-const CITIES = ['Islamabad'];//, 'Karachi', 'Lahore', 'Peshawar', 'Quetta', 'Multan', 'Faisalabad', 'Sialkot'];
+const CITIES = ['Islamabad', 'Karachi', 'Lahore', 'Peshawar', 'Quetta', 'Multan', 'Faisalabad', 'Sialkot'];
 const TYPES = ['Arrival', 'Departure'];
 const BASE_URL = 'https://paaconnectapi.paa.gov.pk/api/flights';
 
@@ -143,7 +143,7 @@ async function main() {
             flight.prem_lu = flight.EnglishRemarks;
             delete flight.EnglishRemarks;
 
-            //delete flight.DateUpdated;
+            delete flight.DateUpdated;
 
             // 5. Add stm field (YYYYMMDDHHMM)
             const stmString = `${flight.Date} ${flight.ST}`;
@@ -244,6 +244,12 @@ async function main() {
             } else {
                 console.log('Delta Sync: No changes detected. Skipping Firebase update.');
             }
+
+            // Always update the 'lastUpdate' timestamp so the client knows when we last checked
+            const lastUpdateStr = moment().tz('Asia/Karachi').format('D MMM YYYY hh:mm A');
+            await db.ref('/lastUpdate').set(lastUpdateStr);
+            console.log(`Global Last Update time set to: ${lastUpdateStr}`);
+
             process.exit(0);
         }
 
