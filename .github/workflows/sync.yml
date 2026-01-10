@@ -1,9 +1,14 @@
 name: Sync Flight Data
 
 on:
+  repository_dispatch:
+    types: [hostinger_cron]
+
+  workflow_dispatch: # manual trigger (keep)
+
+  # Optional fallback (can remove later)
   schedule:
-    - cron: '*/10 * * * *' # Run every 30 minutes
-  workflow_dispatch: # Allow manual trigger
+    - cron: '*/10 * * * *'
 
 jobs:
   sync-job:
