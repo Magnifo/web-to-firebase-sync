@@ -4,11 +4,7 @@ on:
   repository_dispatch:
     types: [hostinger_cron]
 
-  workflow_dispatch: # manual trigger (keep)
-
-  # Optional fallback (can remove later)
-  schedule:
-    - cron: '*/10 * * * *'
+  workflow_dispatch: # manual trigger
 
 jobs:
   sync-job:
