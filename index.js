@@ -140,7 +140,11 @@ async function main() {
             delete flight.EnglishFromCity;
             delete flight.EnglishToCity;
             // 4c. Replace EnglishRemarks with prem_lu
-            flight.prem_lu = flight.EnglishRemarks;
+            let remarksVal = flight.EnglishRemarks || '';
+            if (remarksVal.trim().toUpperCase() === 'ARRIVED') {
+                remarksVal = 'Landed';
+            }
+            flight.prem_lu = remarksVal;
             delete flight.EnglishRemarks;
 
             delete flight.DateUpdated;
@@ -178,7 +182,14 @@ async function main() {
                     correctAtt = attNextDay;
                 }
 
-                flight.att = correctAtt.format('YYMMDDHHmm');
+                // Determine if this is Actual (att) or Estimated (est)
+                const remarks = (flight.prem_lu || '').toUpperCase();
+                // Check if status indicates actual time (Departed or Landed)
+                if (remarks.includes('DEPARTED') || remarks.includes('LANDED') || remarks.includes('ARRIVED')) {
+                    flight.att = correctAtt.format('YYMMDDHHmm');
+                } else {
+                    flight.est = correctAtt.format('YYMMDDHHmm');
+                }
             }
 
             // Final Cleanup: Remove Date and ST/ET after using them
