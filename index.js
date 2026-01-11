@@ -97,8 +97,21 @@ async function main() {
             }
 
             // Cleanup & Renaming
-            // 1. Rename FlightNumber -> flnr
+            // 1. Rename FlightNumber -> flnr and extract airline prefix
             flight.flnr = flight.FlightNumber;
+            // Extract airline code:
+            // 1. If has space, get part before space (e.g., "PK 342" → "PK")
+            // 2. If has hyphen, get part before hyphen (e.g., "PK-302" → "PK")
+            // 3. Otherwise, get first 2 characters
+            if (flight.flnr && flight.flnr.includes(' ')) {
+                flight.airline = flight.flnr.split(' ')[0];
+            } else if (flight.flnr && flight.flnr.includes('-')) {
+                flight.airline = flight.flnr.split('-')[0];
+            } else if (flight.flnr && flight.flnr.length >= 2) {
+                flight.airline = flight.flnr.substring(0, 2);
+            } else {
+                flight.airline = flight.flnr || '';
+            }
             delete flight.FlightNumber;
 
             // 2. Transform Nature -> SubCat (INT / DOM)
