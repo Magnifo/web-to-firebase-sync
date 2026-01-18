@@ -98,7 +98,8 @@ async function main() {
 
             // Cleanup & Renaming
             // 1. Rename FlightNumber -> flnr and extract airline prefix
-            flight.flnr = flight.FlightNumber;
+            flight.flnr = flight.FlightNumber.replace(/-/g, ' ');
+
             // Extract airline code:
             // 1. If has space, get part before space (e.g., "PK 342" → "PK")
             // 2. If has hyphen, get part before hyphen (e.g., "PK-302" → "PK")
