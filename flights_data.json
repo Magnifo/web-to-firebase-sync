@@ -593,15 +593,6 @@
         "stm": "2601230245",
         "att": "2601230250"
       },
-      "2601230310_9P765": {
-        "flnr": "9P 765",
-        "airline": "9P",
-        "SubCat": "INT",
-        "city_lu": "Bahrain",
-        "prem_lu": "Landed",
-        "stm": "2601230310",
-        "att": "2601230405"
-      },
       "2601230310_EY302": {
         "flnr": "EY 302",
         "airline": "EY",
@@ -610,6 +601,15 @@
         "prem_lu": "Landed",
         "stm": "2601230310",
         "att": "2601230317"
+      },
+      "2601230310_9P765": {
+        "flnr": "9P 765",
+        "airline": "9P",
+        "SubCat": "INT",
+        "city_lu": "Bahrain",
+        "prem_lu": "Landed",
+        "stm": "2601230310",
+        "att": "2601230405"
       },
       "2601230325_9P743": {
         "flnr": "9P 743",
@@ -691,15 +691,6 @@
         "stm": "2601230715",
         "att": "2601230731"
       },
-      "2601230720_PK246": {
-        "flnr": "PK 246",
-        "airline": "PK",
-        "SubCat": "INT",
-        "city_lu": "Dammam",
-        "prem_lu": "Landed",
-        "stm": "2601230720",
-        "att": "2601222027"
-      },
       "2601230720_PK702": {
         "flnr": "PK 702",
         "airline": "PK",
@@ -708,6 +699,15 @@
         "prem_lu": "Landed",
         "stm": "2601230720",
         "att": "2601230723"
+      },
+      "2601230720_PK246": {
+        "flnr": "PK 246",
+        "airline": "PK",
+        "SubCat": "INT",
+        "city_lu": "Dammam",
+        "prem_lu": "Landed",
+        "stm": "2601230720",
+        "att": "2601222027"
       },
       "2601230725_QR614": {
         "flnr": "QR 614",
@@ -763,15 +763,6 @@
         "stm": "2601230855",
         "att": "2601230929"
       },
-      "2601230900_PF121": {
-        "flnr": "PF 121",
-        "airline": "PF",
-        "SubCat": "DOM",
-        "city_lu": "Karachi",
-        "prem_lu": "Landed",
-        "stm": "2601230900",
-        "att": "2601230841"
-      },
       "2601230900_PA231": {
         "flnr": "PA 231",
         "airline": "PA",
@@ -789,6 +780,15 @@
         "prem_lu": "Landed",
         "stm": "2601230900",
         "att": "2601230833"
+      },
+      "2601230900_PF121": {
+        "flnr": "PF 121",
+        "airline": "PF",
+        "SubCat": "DOM",
+        "city_lu": "Karachi",
+        "prem_lu": "Landed",
+        "stm": "2601230900",
+        "att": "2601230841"
       },
       "2601230905_PF799": {
         "flnr": "PF 799",
@@ -1105,9 +1105,9 @@
         "airline": "PK",
         "SubCat": "DOM",
         "city_lu": "Quetta",
-        "prem_lu": "On Time",
+        "prem_lu": "Landed",
         "stm": "2601232050",
-        "est": "2601232058"
+        "att": "2601232106"
       },
       "2601232055_PK632": {
         "flnr": "PK 632",
@@ -1213,19 +1213,19 @@
         "prem_lu": "Expected",
         "stm": "2601240245"
       },
-      "2601240310_EY302": {
-        "flnr": "EY 302",
-        "airline": "EY",
-        "SubCat": "INT",
-        "city_lu": "Abu Dhabi",
-        "prem_lu": "Expected",
-        "stm": "2601240310"
-      },
       "2601240310_KU207": {
         "flnr": "KU 207",
         "airline": "KU",
         "SubCat": "INT",
         "city_lu": "Kuwait",
+        "prem_lu": "Expected",
+        "stm": "2601240310"
+      },
+      "2601240310_EY302": {
+        "flnr": "EY 302",
+        "airline": "EY",
+        "SubCat": "INT",
+        "city_lu": "Abu Dhabi",
         "prem_lu": "Expected",
         "stm": "2601240310"
       },
@@ -1334,14 +1334,6 @@
         "prem_lu": "Expected",
         "stm": "2601240855"
       },
-      "2601240900_SV722": {
-        "flnr": "SV 722",
-        "airline": "SV",
-        "SubCat": "INT",
-        "city_lu": "Jeddah",
-        "prem_lu": "Expected",
-        "stm": "2601240900"
-      },
       "2601240900_PF121": {
         "flnr": "PF 121",
         "airline": "PF",
@@ -1349,6 +1341,15 @@
         "city_lu": "Karachi",
         "prem_lu": "Expected",
         "stm": "2601240900"
+      },
+      "2601240900_SV722": {
+        "flnr": "SV 722",
+        "airline": "SV",
+        "SubCat": "INT",
+        "city_lu": "Jeddah",
+        "prem_lu": "Advanced",
+        "stm": "2601240900",
+        "est": "2601240744"
       },
       "2601240905_9P670": {
         "flnr": "9P 670",
@@ -1398,19 +1399,19 @@
         "prem_lu": "Expected",
         "stm": "2601241100"
       },
-      "2601241100_CZ6033": {
-        "flnr": "CZ 6033",
-        "airline": "CZ",
-        "SubCat": "INT",
-        "city_lu": "Kashgar",
-        "prem_lu": "Expected",
-        "stm": "2601241100"
-      },
       "2601241100_HY465": {
         "flnr": "HY 465",
         "airline": "HY",
         "SubCat": "INT",
         "city_lu": "Tashkent",
+        "prem_lu": "Expected",
+        "stm": "2601241100"
+      },
+      "2601241100_CZ6033": {
+        "flnr": "CZ 6033",
+        "airline": "CZ",
+        "SubCat": "INT",
+        "city_lu": "Kashgar",
         "prem_lu": "Expected",
         "stm": "2601241100"
       },
@@ -2287,6 +2288,14 @@
         "stm": "2601230615",
         "att": "2601230628"
       },
+      "2601230700_PK601": {
+        "flnr": "PK 601",
+        "airline": "PK",
+        "SubCat": "DOM",
+        "city_lu": "Gilgit",
+        "prem_lu": "Cancelled",
+        "stm": "2601230700"
+      },
       "2601230700_9P700": {
         "flnr": "9P 700",
         "airline": "9P",
@@ -2295,14 +2304,6 @@
         "prem_lu": "Departed",
         "stm": "2601230700",
         "att": "2601230716"
-      },
-      "2601230700_PK601": {
-        "flnr": "PK 601",
-        "airline": "PK",
-        "SubCat": "DOM",
-        "city_lu": "Gilgit",
-        "prem_lu": "Cancelled",
-        "stm": "2601230700"
       },
       "2601230730_PK451": {
         "flnr": "PK 451",
@@ -2509,15 +2510,6 @@
         "stm": "2601231245",
         "att": "2601231316"
       },
-      "2601231300_MXF7563": {
-        "flnr": "MXF7563",
-        "airline": "MX",
-        "SubCat": "INT",
-        "city_lu": "Kabul",
-        "prem_lu": "Departed",
-        "stm": "2601231300",
-        "att": "2601231516"
-      },
       "2601231300_PA216": {
         "flnr": "PA 216",
         "airline": "PA",
@@ -2526,6 +2518,15 @@
         "prem_lu": "Departed",
         "stm": "2601231300",
         "att": "2601231331"
+      },
+      "2601231300_MXF7563": {
+        "flnr": "MXF7563",
+        "airline": "MX",
+        "SubCat": "INT",
+        "city_lu": "Kabul",
+        "prem_lu": "Departed",
+        "stm": "2601231300",
+        "att": "2601231516"
       },
       "2601231330_PA205": {
         "flnr": "PA 205",
@@ -2572,15 +2573,6 @@
         "stm": "2601231500",
         "att": "2601231718"
       },
-      "2601231510_GF771": {
-        "flnr": "GF 771",
-        "airline": "GF",
-        "SubCat": "INT",
-        "city_lu": "Bahrain",
-        "prem_lu": "Departed",
-        "stm": "2601231510",
-        "att": "2601231548"
-      },
       "2601231510_XY316": {
         "flnr": "XY 316",
         "airline": "XY",
@@ -2589,6 +2581,15 @@
         "prem_lu": "Departed",
         "stm": "2601231510",
         "att": "2601231541"
+      },
+      "2601231510_GF771": {
+        "flnr": "GF 771",
+        "airline": "GF",
+        "SubCat": "INT",
+        "city_lu": "Bahrain",
+        "prem_lu": "Departed",
+        "stm": "2601231510",
+        "att": "2601231548"
       },
       "2601231515_PA212": {
         "flnr": "PA 212",
@@ -2684,7 +2685,7 @@
         "city_lu": "Riyadh",
         "prem_lu": "Check-In Closed",
         "stm": "2601231945",
-        "est": "2601232025"
+        "est": "2601231945"
       },
       "2601232015_9P742": {
         "flnr": "9P 742",
@@ -2709,18 +2710,18 @@
         "airline": "PK",
         "SubCat": "INT",
         "city_lu": "Abu Dhabi",
-        "prem_lu": "Check-In Closed",
+        "prem_lu": "Departed",
         "stm": "2601232050",
-        "est": "2601232050"
+        "att": "2601232111"
       },
       "2601232050_9P675": {
         "flnr": "9P 675",
         "airline": "9P",
         "SubCat": "DOM",
         "city_lu": "Karachi",
-        "prem_lu": "Check-In Closed",
+        "prem_lu": "Departed",
         "stm": "2601232050",
-        "est": "2601232050"
+        "att": "2601232104"
       },
       "2601232100_PF126": {
         "flnr": "PF 126",
@@ -2796,8 +2797,9 @@
         "airline": "PK",
         "SubCat": "INT",
         "city_lu": "Dubai",
-        "prem_lu": "Expected",
-        "stm": "2601240135"
+        "prem_lu": "On Time",
+        "stm": "2601240135",
+        "est": "2601240135"
       },
       "2601240200_SV727": {
         "flnr": "SV 727",
@@ -4469,9 +4471,9 @@
         "airline": "EK",
         "SubCat": "INT",
         "city_lu": "Dubai",
-        "prem_lu": "Confirmed",
+        "prem_lu": "Landed",
         "stm": "2601232105",
-        "est": "2601232110"
+        "att": "2601232110"
       },
       "2601232125_CA945": {
         "flnr": "CA 945",
@@ -7744,21 +7746,13 @@
         "prem_lu": "",
         "stm": "2601240135"
       },
-      "2601240355_9P503": {
+      "2601240345_9P503": {
         "flnr": "9P 503",
         "airline": "9P",
         "SubCat": "INT",
         "city_lu": "Sharjah",
         "prem_lu": "",
-        "stm": "2601240355"
-      },
-      "2601240420_9P587": {
-        "flnr": "9P 587",
-        "airline": "9P",
-        "SubCat": "INT",
-        "city_lu": "Jeddah",
-        "prem_lu": "",
-        "stm": "2601240420"
+        "stm": "2601240345"
       },
       "2601240445_TK714": {
         "flnr": "TK 714",
@@ -7767,6 +7761,14 @@
         "city_lu": "Istanbul",
         "prem_lu": "",
         "stm": "2601240445"
+      },
+      "2601240525_9P587": {
+        "flnr": "9P 587",
+        "airline": "9P",
+        "SubCat": "INT",
+        "city_lu": "Jeddah",
+        "prem_lu": "",
+        "stm": "2601240525"
       },
       "2601240720_QR628": {
         "flnr": "QR 628",
@@ -7840,19 +7842,19 @@
         "prem_lu": "",
         "stm": "2601241105"
       },
-      "2601241120_9P840": {
-        "flnr": "9P 840",
-        "airline": "9P",
-        "SubCat": "DOM",
-        "city_lu": "Karachi",
-        "prem_lu": "",
-        "stm": "2601241120"
-      },
       "2601241120_IRB9780": {
         "flnr": "IRB 9780",
         "airline": "IRB",
         "SubCat": "INT",
         "city_lu": "Mashhad",
+        "prem_lu": "",
+        "stm": "2601241120"
+      },
+      "2601241120_9P840": {
+        "flnr": "9P 840",
+        "airline": "9P",
+        "SubCat": "DOM",
+        "city_lu": "Karachi",
         "prem_lu": "",
         "stm": "2601241120"
       },
@@ -7896,13 +7898,21 @@
         "prem_lu": "",
         "stm": "2601241410"
       },
-      "2601241500_OD131": {
-        "flnr": "OD 131",
-        "airline": "OD",
-        "SubCat": "INT",
-        "city_lu": "Kuala Lampur",
+      "2601241425_PF143": {
+        "flnr": "PF 143",
+        "airline": "PF",
+        "SubCat": "DOM",
+        "city_lu": "Karachi",
         "prem_lu": "",
-        "stm": "2601241500"
+        "stm": "2601241425"
+      },
+      "2601241450_XY317": {
+        "flnr": "XY 317",
+        "airline": "XY",
+        "SubCat": "INT",
+        "city_lu": "Riyadh",
+        "prem_lu": "",
+        "stm": "2601241450"
       },
       "2601241500_PA402": {
         "flnr": "PA 402",
@@ -7910,6 +7920,14 @@
         "SubCat": "DOM",
         "city_lu": "Karachi",
         "prem_lu": "Cancelled",
+        "stm": "2601241500"
+      },
+      "2601241500_OD131": {
+        "flnr": "OD 131",
+        "airline": "OD",
+        "SubCat": "INT",
+        "city_lu": "Kuala Lampur",
+        "prem_lu": "",
         "stm": "2601241500"
       },
       "2601241515_PK302": {
@@ -7952,6 +7970,14 @@
         "prem_lu": "",
         "stm": "2601241700"
       },
+      "2601241750_PF787": {
+        "flnr": "PF 787",
+        "airline": "PF",
+        "SubCat": "INT",
+        "city_lu": "Dubai",
+        "prem_lu": "",
+        "stm": "2601241750"
+      },
       "2601241800_CZ6037": {
         "flnr": "CZ 6037",
         "airline": "CZ",
@@ -7975,14 +8001,6 @@
         "city_lu": "Karachi",
         "prem_lu": "",
         "stm": "2601241900"
-      },
-      "2601241925_PF787": {
-        "flnr": "PF 787",
-        "airline": "PF",
-        "SubCat": "INT",
-        "city_lu": "Dubai",
-        "prem_lu": "",
-        "stm": "2601241925"
       },
       "2601241930_9P501": {
         "flnr": "9P 501",
@@ -8031,6 +8049,14 @@
         "city_lu": "Karachi",
         "prem_lu": "",
         "stm": "2601242145"
+      },
+      "2601242215_9P846": {
+        "flnr": "9P 846",
+        "airline": "9P",
+        "SubCat": "DOM",
+        "city_lu": "Karachi",
+        "prem_lu": "",
+        "stm": "2601242215"
       },
       "2601242330_PK230": {
         "flnr": "PK 230",
@@ -9026,6 +9052,14 @@
         "prem_lu": "Cancelled",
         "stm": "2601241015"
       },
+      "2601241015_PF786": {
+        "flnr": "PF 786",
+        "airline": "PF",
+        "SubCat": "INT",
+        "city_lu": "Dubai",
+        "prem_lu": "",
+        "stm": "2601241015"
+      },
       "2601241125_SV735": {
         "flnr": "SV 735",
         "airline": "SV",
@@ -9033,14 +9067,6 @@
         "city_lu": "Jeddah",
         "prem_lu": "",
         "stm": "2601241125"
-      },
-      "2601241150_PF786": {
-        "flnr": "PF 786",
-        "airline": "PF",
-        "SubCat": "INT",
-        "city_lu": "Dubai",
-        "prem_lu": "",
-        "stm": "2601241150"
       },
       "2601241205_FZ360": {
         "flnr": "FZ 360",
@@ -9106,6 +9132,14 @@
         "prem_lu": "",
         "stm": "2601241415"
       },
+      "2601241515_PF144": {
+        "flnr": "PF 144",
+        "airline": "PF",
+        "SubCat": "DOM",
+        "city_lu": "Karachi",
+        "prem_lu": "",
+        "stm": "2601241515"
+      },
       "2601241630_OD132": {
         "flnr": "OD 132",
         "airline": "OD",
@@ -9113,6 +9147,14 @@
         "city_lu": "Kuala Lampur",
         "prem_lu": "",
         "stm": "2601241630"
+      },
+      "2601241645_PK229": {
+        "flnr": "PK 229",
+        "airline": "PK",
+        "SubCat": "INT",
+        "city_lu": "Muscat",
+        "prem_lu": "",
+        "stm": "2601241645"
       },
       "2601241700_PA405": {
         "flnr": "PA 405",
@@ -9193,14 +9235,6 @@
         "city_lu": "Dubai",
         "prem_lu": "",
         "stm": "2601242135"
-      },
-      "2601242230_PF766": {
-        "flnr": "PF 766",
-        "airline": "PF",
-        "SubCat": "INT",
-        "city_lu": "Riyadh",
-        "prem_lu": "",
-        "stm": "2601242230"
       },
       "2601242235_PK205": {
         "flnr": "PK 205",
@@ -9886,9 +9920,9 @@
         "airline": "PK",
         "SubCat": "DOM",
         "city_lu": "Karachi",
-        "prem_lu": "Delayed",
+        "prem_lu": "Confirmed",
         "stm": "2601231515",
-        "est": "2601232115"
+        "est": "2601232155"
       },
       "2601231610_FZ355": {
         "flnr": "FZ 355",
