@@ -3439,19 +3439,19 @@
         "prem_lu": "Cancelled",
         "stm": "2601262100"
       },
-      "2601262105_EK602": {
-        "flnr": "EK 602",
-        "airline": "EK",
-        "SubCat": "INT",
-        "city_lu": "Dubai",
-        "prem_lu": "",
-        "stm": "2601262105"
-      },
       "2601262105_D7108": {
         "flnr": "D7 108",
         "airline": "D7",
         "SubCat": "INT",
         "city_lu": "Kuala Lampur",
+        "prem_lu": "",
+        "stm": "2601262105"
+      },
+      "2601262105_EK602": {
+        "flnr": "EK 602",
+        "airline": "EK",
+        "SubCat": "INT",
+        "city_lu": "Dubai",
         "prem_lu": "",
         "stm": "2601262105"
       },
@@ -4943,7 +4943,7 @@
         "airline": "PK",
         "SubCat": "DOM",
         "city_lu": "Turbat",
-        "prem_lu": "Now Check In",
+        "prem_lu": "Delayed",
         "stm": "2601261150",
         "est": "2601261615"
       },
@@ -6409,15 +6409,6 @@
         "stm": "2601260945",
         "att": "2601260928"
       },
-      "2601261055_EK624": {
-        "flnr": "EK 624",
-        "airline": "EK",
-        "SubCat": "INT",
-        "city_lu": "Dubai",
-        "prem_lu": "Landed",
-        "stm": "2601261055",
-        "att": "2601261047"
-      },
       "2601261055_PK748": {
         "flnr": "PK 748",
         "airline": "PK",
@@ -6426,6 +6417,15 @@
         "prem_lu": "Landed",
         "stm": "2601261055",
         "att": "2601261129"
+      },
+      "2601261055_EK624": {
+        "flnr": "EK 624",
+        "airline": "EK",
+        "SubCat": "INT",
+        "city_lu": "Dubai",
+        "prem_lu": "Landed",
+        "stm": "2601261055",
+        "att": "2601261047"
       },
       "2601261105_FZ359": {
         "flnr": "FZ 359",
@@ -6486,9 +6486,9 @@
         "airline": "KU",
         "SubCat": "INT",
         "city_lu": "Kuwait",
-        "prem_lu": "Confirmed",
+        "prem_lu": "Landed",
         "stm": "2601261315",
-        "est": "2601261330"
+        "att": "2601261317"
       },
       "2601261400_F3655": {
         "flnr": "F3 655",
@@ -7691,8 +7691,9 @@
         "airline": "9P",
         "SubCat": "DOM",
         "city_lu": "Karachi",
-        "prem_lu": "Check In Closed",
-        "stm": "2601261245"
+        "prem_lu": "Departed",
+        "stm": "2601261245",
+        "att": "2601261311"
       },
       "2601261300_XY884": {
         "flnr": "XY 884",
@@ -7715,7 +7716,7 @@
         "airline": "KU",
         "SubCat": "INT",
         "city_lu": "Kuwait",
-        "prem_lu": "Now Check In",
+        "prem_lu": "Check In Closed",
         "stm": "2601261405"
       },
       "2601261500_F3656": {
@@ -7726,19 +7727,19 @@
         "prem_lu": "Now Check In",
         "stm": "2601261500"
       },
-      "2601261510_GF765": {
-        "flnr": "GF 765",
-        "airline": "GF",
-        "SubCat": "INT",
-        "city_lu": "Bahrain",
-        "prem_lu": "Now Check In",
-        "stm": "2601261510"
-      },
       "2601261510_PK859": {
         "flnr": "PK 859",
         "airline": "PK",
         "SubCat": "INT",
         "city_lu": "Jeddah",
+        "prem_lu": "Now Check In",
+        "stm": "2601261510"
+      },
+      "2601261510_GF765": {
+        "flnr": "GF 765",
+        "airline": "GF",
+        "SubCat": "INT",
+        "city_lu": "Bahrain",
         "prem_lu": "Now Check In",
         "stm": "2601261510"
       },
@@ -7755,7 +7756,7 @@
         "airline": "OD",
         "SubCat": "INT",
         "city_lu": "Kuala Lampur",
-        "prem_lu": "",
+        "prem_lu": "Now Check In",
         "stm": "2601261630"
       },
       "2601261700_PK305": {
