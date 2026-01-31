@@ -218,80 +218,48 @@ async function main() {
             }
         });
 
-        // Load previous data for comparison
-        let previousData = {};
-        if (fs.existsSync('flights_data.json')) {
-            try {
-                previousData = JSON.parse(fs.readFileSync('flights_data.json', 'utf8'));
-                console.log('Loaded previous local data for Delta Sync comparison.');
-            } catch (e) {
-                console.log('Previous data corrupted or mismatch, starting fresh diff.');
-            }
-        }
-
-        // Save new data to JSON file (overwriting old one for next run)
-        fs.writeFileSync('flights_data.json', JSON.stringify(structuredData, null, 2));
-        console.log('Data saved to flights_data.json (Restructured)');
-
         if (db) {
-            console.log('Calculating Delta updates (Zero Firebase reads)...');
-            const updates = {};
-            let changedCount = 0;
-            let newCount = 0;
+            console.log('Pushing data to Firebase (Field-based, Per-Flight)...');
 
-            // Define the fields that this script manages
             const managedFields = ['flnr', 'airline', 'SubCat', 'city_lu', 'prem_lu', 'stm', 'att', 'est'];
+            const updatePromises = [];
 
-            // Process all flights using LOCAL comparison only
             for (const city in structuredData) {
                 for (const type in structuredData[city]) {
                     for (const key in structuredData[city][type]) {
-                        const newFlight = structuredData[city][type][key];
-                        const oldFlight = previousData[city] && previousData[city][type]
-                            ? previousData[city][type][key]
-                            : null;
+                        const flight = structuredData[city][type][key];
 
-                        if (!oldFlight) {
-                            // Brand new flight - use field-level updates to preserve any existing custom fields
-                            for (const field of managedFields) {
-                                if (newFlight[field] !== undefined) {
-                                    updates[`${city}/${type}/${key}/${field}`] = newFlight[field];
-                                }
-                            }
-                            newCount++;
-                        } else if (JSON.stringify(newFlight) !== JSON.stringify(oldFlight)) {
-                            // Flight changed - update only the managed fields that changed
-                            for (const field of managedFields) {
-                                const newValue = newFlight[field];
-                                const oldValue = oldFlight[field];
+                        // Construct field-specific updates for this SINGLE FLIGHT
+                        const flightUpdates = {};
+                        let hasUpdates = false;
 
-                                if (newValue !== oldValue) {
-                                    // Field changed or added
-                                    if (newValue !== undefined) {
-                                        updates[`${city}/${type}/${key}/${field}`] = newValue;
-                                    } else {
-                                        // Field removed (was in old, not in new)
-                                        updates[`${city}/${type}/${key}/${field}`] = null;
-                                    }
-                                }
+                        for (const field of managedFields) {
+                            if (flight[field] !== undefined) {
+                                flightUpdates[field] = flight[field];
+                                hasUpdates = true;
                             }
-                            changedCount++;
                         }
-                        // else: unchanged, skip entirely
+
+                        if (hasUpdates) {
+                            // Path: /flights/City/Type/Key
+                            // Update ONLY the managed fields for this flight to avoid overwriting other props (like custom ones from other devices)
+                            const p = db.ref(`/flights/${city}/${type}/${key}`).update(flightUpdates)
+                                .catch(err => console.error(`Failed to update ${city}/${type}/${key}:`, err.message));
+                            updatePromises.push(p);
+                        }
                     }
                 }
             }
 
-            if (Object.keys(updates).length > 0) {
-                console.log(`Delta Sync: ${newCount} new flights, ${changedCount} changed flights (0 Firebase reads).`);
-                console.log(`Uploading ${Object.keys(updates).length} field-level updates to Firebase...`);
-                await db.ref('/flights').update(updates);
-                console.log('Successfully updated flight data in Firebase.');
+            if (updatePromises.length > 0) {
+                console.log(`Updating ${updatePromises.length} flights individually...`);
+                await Promise.all(updatePromises);
+                console.log('Successfully updated all flights.');
             } else {
-                console.log('Delta Sync: No changes detected. Skipping Firebase update.');
+                console.log('No data to update.');
             }
 
-            // Always update the 'lastUpdate' timestamp so the client knows when we last checked
+            // Always update the 'lastUpdate' timestamp
             const lastUpdateStr = moment().tz('Asia/Karachi').format('D MMM YYYY hh:mm A');
             await db.ref('/lastUpdate').set(lastUpdateStr);
             console.log(`Global Last Update time set to: ${lastUpdateStr}`);
