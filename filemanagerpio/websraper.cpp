@@ -48,23 +48,35 @@ String SanitizeFlightNumber(String flnr) {
 
 // Helper function to normalize flight key to YYMMDDHHMM_FLNR format
 String NormalizeFlightKey(String keySTM, String flnr) {
-  // Ensure keySTM is exactly 10 digits (YYMMDDHHMM)
-  if (keySTM.length() != 10) {
-    // Try to extract 10 digits from the string
+  // Handle both YYMMDDHHMM (10 digits) and YYYYMMDDHHMM (12 digits) formats
+  if (keySTM.length() == 12) {
+    // Convert YYYYMMDDHHMM to YYMMDDHHMM (remove first 2 digits of year)
+    keySTM = keySTM.substring(2);
+    Serial.printf("🔧 Converted 4-digit year format: %s -> %s\n", keySTM.c_str() + 2, keySTM.c_str());
+  }
+  else if (keySTM.length() != 10) {
+    // Try to extract digits from the string
     String cleanSTM = "";
-    for (int i = 0; i < keySTM.length() && cleanSTM.length() < 10; i++) {
+    for (int i = 0; i < keySTM.length() && cleanSTM.length() < 12; i++) {
       if (isdigit(keySTM[i])) {
         cleanSTM += keySTM[i];
       }
     }
 
-    if (cleanSTM.length() != 10) {
+    // Handle 12-digit format first
+    if (cleanSTM.length() == 12) {
+      keySTM = cleanSTM.substring(2); // Convert YYYYMMDDHHMM to YYMMDDHHMM
+      Serial.printf("🔧 Extracted and converted 4-digit year: %s -> %s\n", cleanSTM.c_str(), keySTM.c_str());
+    }
+    else if (cleanSTM.length() == 10) {
+      keySTM = cleanSTM;
+    }
+    else {
       Serial.printf(
           "⚠️ Invalid STM format: '%s' (length: %d), cannot normalize\n",
           keySTM.c_str(), keySTM.length());
       return ""; // Return empty to skip this flight
     }
-    keySTM = cleanSTM;
   }
 
   // Clean flight number
@@ -281,26 +293,42 @@ void ExtractTDInfoJSON(String trHtml, JsonDocument &doc, String Category,
     }
 
     if (fieldName == "stm") {
-      // Ensure stm is in YYMMDDHHMM format
-      // If it's still in ISO format (YYYY-MM-DD HH:MM:SS), convert it
+      // Ensure stm is in YYMMDDHHMM format (10 digits)
+      // If it's in ISO format (YYYY-MM-DD HH:MM:SS), convert it
       if (value.length() == 19 && value[4] == '-' && value[7] == '-' &&
           value[10] == ' ' && value[13] == ':' && value[16] == ':') {
+        // Extract: 2026-01-31 08:10:00 -> 2601310810
         value = value.substring(2, 4) + value.substring(5, 7) +
                 value.substring(8, 10) + value.substring(11, 13) +
                 value.substring(14, 16);
       }
+      // If format has extra digits, handle 4-digit year (YYYYMMDDHHMM -> YYMMDDHHMM)
+      else if (value.length() == 12 && value.substring(0, 4).toInt() > 1999) {
+        // Extract last 10 digits from 4-digit year format
+        value = value.substring(2);
+        Serial.printf("🔧 Converted 4-digit year STM: %s\n", value.c_str());
+      }
       // If format is wrong, try alternative patterns
       else if (value.length() > 10) {
-        // Handle other date formats - extract numbers only and take first 10
-        // digits
+        // Handle other date formats - extract numbers only
         String cleanValue = "";
-        for (int i = 0; i < value.length() && cleanValue.length() < 10; i++) {
+        for (int i = 0; i < value.length() && cleanValue.length() < 12; i++) {
           if (isdigit(value[i])) {
             cleanValue += value[i];
           }
         }
-        if (cleanValue.length() == 10) {
+        // Handle 12-digit format (YYYYMMDDHHMM)
+        if (cleanValue.length() == 12) {
+          value = cleanValue.substring(2); // Convert to YYMMDDHHMM
+          Serial.printf("🔧 Extracted and converted STM: %s\n", value.c_str());
+        }
+        else if (cleanValue.length() == 10) {
           value = cleanValue;
+        }
+        else {
+          Serial.printf("⚠️ Invalid STM format, skipping: %s\n", value.c_str());
+          pos = tdEnd + 5;
+          continue;
         }
       }
       keySTM = value;
