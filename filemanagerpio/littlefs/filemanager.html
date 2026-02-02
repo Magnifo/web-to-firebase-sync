@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32-S3 File Manager</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Main Application -->
+    <div class="app-container" id="appContainer">
+        <div class="container">
+            <header>
+                <div class="header-top">
+                    <h1>📁 ESP32-S3 File Manager</h1>
+                    <div class="header-buttons">
+                        <button class="settings-btn" id="settingsBtn">⚙️ Settings</button>
+                        <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+                    </div>
+                </div>
+            </header>
+
+            <div class="upload-section">
+                <div class="upload-wrapper">
+                    <!-- File Upload Area (Left 70%) -->
+                    <div class="file-upload-area">
+                        <div class="drop-zone" id="dropZone">
+                            <h3>📤 Drop Files Here</h3>
+                            <p>or click to browse</p>
+                            <button class="upload-btn">Select Files</button>
+                            <input type="file" id="fileInput" class="file-input" multiple>
+                            <div class="progress-bar" id="progressBar">
+                                <div class="progress-fill" id="progressFill">0%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- OTA Firmware Upload Area (Right 30%) -->
+                    <div class="ota-upload-area">
+                        <div class="ota-drop-zone" id="otaDropZone">
+                            <h3>🔧 Firmware Update (OTA)</h3>
+                            <p>Drop .bin file or click</p>
+                            <button class="upload-btn ota-btn">Select Firmware</button>
+                            <input type="file" id="otaFileInput" class="file-input" accept=".bin">
+                            <div class="progress-bar" id="otaProgressBar">
+                                <div class="progress-fill" id="otaProgressFill">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="storage-section">
+                <div class="storage-header">💾 Storage Status</div>
+
+                <div class="storage-stats">
+                    <div class="storage-stat">
+                        <div class="stat-label">Used Space</div>
+                        <div class="stat-value" id="usedSpace">0 MB</div>
+                    </div>
+                    <div class="storage-stat">
+                        <div class="stat-label">Available Space</div>
+                        <div class="stat-value" id="availableSpace">0 MB</div>
+                    </div>
+                </div>
+
+                <div class="storage-bar-container">
+                    <div class="storage-bar-label">
+                        <span>Storage Usage</span>
+                        <span id="storagePercent">0%</span>
+                    </div>
+                    <div class="storage-bar">
+                        <div class="storage-bar-fill" id="storageBarFill" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ESP32 Event Monitor -->
+            <div class="event-monitor-section">
+                <div class="event-header">
+                    <span>📡 ESP32 Status & Events</span>
+                    <span class="event-status" id="eventStatus">Connecting...</span>
+                </div>
+
+                <div class="event-display">
+                    <div class="current-event">
+                        <div class="event-icon" id="eventIcon">⏳</div>
+                        <div class="event-content">
+                            <div class="event-message" id="eventMessage">Waiting for ESP32...</div>
+                            <div class="event-time" id="eventTime">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="event-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Last Sync:</span>
+                        <span class="stat-value" id="lastSyncTime">--</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Uptime:</span>
+                        <span class="stat-value" id="uptimeValue">--</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Free Memory:</span>
+                        <span class="stat-value" id="freeMemory">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="files-section">
+                <h2>📂 Files on LittleFS</h2>
+                <div id="fileListContainer">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Loading files...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div class="modal" id="settingsModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>⚙️ Settings</h2>
+                    <button class="modal-close" id="closeModal">&times;</button>
+                </div>
+
+                <form id="settingsForm" class="settings-form">
+                    <!-- User Credentials Section -->
+                    <div class="form-section">
+                        <h3>👤 User Credentials</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="username">Username</label>
+                                <input type="text" id="username" name="username" placeholder="Enter username" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Password</label>
+                                <div class="password-input-wrapper">
+                                    <input type="password" id="password" name="password" placeholder="Enter password"
+                                        required>
+                                    <button type="button" class="password-toggle"
+                                        onclick="togglePasswordVisibility('password')">Show</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AP (Access Point) WiFi Section -->
+                    <div class="form-section">
+                        <h3>📡 AP (Access Point)</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="apSSID">AP SSID</label>
+                                <input type="text" id="apSSID" name="apSSID" placeholder="e.g., ESP32-FileManager"
+                                    required>
+                            </div>
+                            <div class="form-group">
+                                <label for="apPassword">AP Password</label>
+                                <div class="password-input-wrapper">
+                                    <input type="password" id="apPassword" name="apPassword"
+                                        placeholder="Enter AP password" required>
+                                    <button type="button" class="password-toggle"
+                                        onclick="togglePasswordVisibility('apPassword')">Show</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STA (Station) WiFi Section -->
+                    <div class="form-section">
+                        <h3>📶 STA (Station) WiFi</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="staSSID">WiFi SSID</label>
+                                <input type="text" id="staSSID" name="staSSID" placeholder="e.g., Home WiFi" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="staPassword">WiFi Password</label>
+                                <div class="password-input-wrapper">
+                                    <input type="password" id="staPassword" name="staPassword"
+                                        placeholder="Enter WiFi password" required>
+                                    <button type="button" class="password-toggle"
+                                        onclick="togglePasswordVisibility('staPassword')">Show</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-save">💾 Save Settings</button>
+                        <button type="button" class="btn-cancel" id="cancelBtn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

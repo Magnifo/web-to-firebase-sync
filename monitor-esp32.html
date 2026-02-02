@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 Status Monitor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .status-box {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            border: 3px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .status-box.running {
+            border-color: #4caf50;
+            background: #e8f5e9;
+        }
+
+        .status-box.warning {
+            border-color: #ff9800;
+            background: #fff3e0;
+        }
+
+        .status-box.error {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .status-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 15px;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.running {
+            background: #4caf50;
+        }
+
+        .status-dot.warning {
+            background: #ff9800;
+        }
+
+        .status-dot.error {
+            background: #f44336;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .status-text {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .status-text.running { color: #4caf50; }
+        .status-text.warning { color: #ff9800; }
+        .status-text.error { color: #f44336; }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .timestamp {
+            font-size: 20px;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .refresh-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .refresh-btn:active {
+            transform: translateY(0);
+        }
+
+        .loading {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .auto-refresh {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 15px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .auto-refresh input {
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 ESP32 Status Monitor</h1>
+        <p class="subtitle">Real-time monitoring of ESP32 sync status</p>
+
+        <div id="statusBox" class="status-box">
+            <div class="loading">Loading status...</div>
+        </div>
+
+        <button class="refresh-btn" onclick="checkStatus()">🔄 Refresh Now</button>
+        
+        <div class="auto-refresh">
+            <input type="checkbox" id="autoRefresh" checked onchange="toggleAutoRefresh()">
+            <label for="autoRefresh">Auto-refresh every 10 seconds</label>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, get } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCiG3ZhMyPEz1cz0Gy61p3fqndTHy8fO0E",
+            authDomain: "aseengrs-7f20c.firebaseapp.com",
+            databaseURL: "https://aseengrs-7f20c-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "aseengrs-7f20c",
+            storageBucket: "aseengrs-7f20c.firebasestorage.app",
+            messagingSenderId: "485903353893",
+            appId: "1:485903353893:web:d6b09da3dd3084b10a88f9"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        let autoRefreshInterval = null;
+
+        // Parse timestamp to Date object
+        function parseTimestamp(timestampStr) {
+            if (!timestampStr || timestampStr === "Time not set") return null;
+            
+            // Parse format: "15 Jan 2026 12:44 AM"
+            const parts = timestampStr.match(/(\d+) (\w+) (\d+) (\d+):(\d+) (AM|PM)/);
+            if (!parts) return null;
+
+            const months = {
+                'Jan': 0, 'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'Jun': 5,
+                'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
+            };
+
+            let day = parseInt(parts[1]);
+            let month = months[parts[2]];
+            let year = parseInt(parts[3]);
+            let hour = parseInt(parts[4]);
+            let minute = parseInt(parts[5]);
+            let ampm = parts[6];
+
+            // Convert to 24-hour format
+            if (ampm === 'PM' && hour !== 12) hour += 12;
+            if (ampm === 'AM' && hour === 12) hour = 0;
+
+            return new Date(year, month, day, hour, minute);
+        }
+
+        function getTimeDifference(timestamp) {
+            const now = new Date();
+            const diff = Math.floor((now - timestamp) / 1000); // seconds
+
+            if (diff < 60) return `${diff} seconds ago`;
+            if (diff < 3600) return `${Math.floor(diff / 60)} minutes ago`;
+            if (diff < 86400) return `${Math.floor(diff / 3600)} hours ago`;
+            return `${Math.floor(diff / 86400)} days ago`;
+        }
+
+        window.checkStatus = async function() {
+            const statusBox = document.getElementById('statusBox');
+            statusBox.innerHTML = '<div class="loading">Checking status...</div>';
+
+            try {
+                const esp33Ref = ref(database, '/Esp33Update');
+                const snapshot = await get(esp33Ref);
+
+                if (snapshot.exists()) {
+                    const timestampStr = snapshot.val();
+                    const timestamp = parseTimestamp(timestampStr);
+                    
+                    if (!timestamp) {
+                        throw new Error('Invalid timestamp format');
+                    }
+
+                    const now = new Date();
+                    const diffMinutes = Math.floor((now - timestamp) / 1000 / 60);
+                    
+                    let status, statusClass, statusIcon;
+                    
+                    if (diffMinutes <= 10) {
+                        status = 'Running ✅';
+                        statusClass = 'running';
+                        statusIcon = '✅';
+                    } else if (diffMinutes <= 20) {
+                        status = 'Warning ⚠️';
+                        statusClass = 'warning';
+                        statusIcon = '⚠️';
+                    } else {
+                        status = 'Stuck/Offline ❌';
+                        statusClass = 'error';
+                        statusIcon = '❌';
+                    }
+
+                    statusBox.className = `status-box ${statusClass}`;
+                    statusBox.innerHTML = `
+                        <div class="status-indicator">
+                            <div class="status-dot ${statusClass}"></div>
+                            <div class="status-text ${statusClass}">${status}</div>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Last Update:</span>
+                            <span class="timestamp">${timestampStr}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Time Ago:</span>
+                            <span class="info-value">${getTimeDifference(timestamp)}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Status:</span>
+                            <span class="info-value ${statusClass}">${diffMinutes <= 10 ? 'Syncing normally every 5 min' : diffMinutes <= 20 ? 'Delayed - check ESP32' : 'ESP32 appears stuck or offline'}</span>
+                        </div>
+                    `;
+                } else {
+                    statusBox.className = 'status-box error';
+                    statusBox.innerHTML = `
+                        <div class="status-indicator">
+                            <div class="status-dot error"></div>
+                            <div class="status-text error">No Data ❌</div>
+                        </div>
+                        <div class="error-message">
+                            ESP32 has never updated or Esp33Update field doesn't exist in Firebase.
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                statusBox.className = 'status-box error';
+                statusBox.innerHTML = `
+                    <div class="status-indicator">
+                        <div class="status-dot error"></div>
+                        <div class="status-text error">Error ❌</div>
+                    </div>
+                    <div class="error-message">
+                        Failed to fetch status: ${error.message}
+                    </div>
+                `;
+                console.error('Error:', error);
+            }
+        };
+
+        window.toggleAutoRefresh = function() {
+            const checkbox = document.getElementById('autoRefresh');
+            
+            if (checkbox.checked) {
+                autoRefreshInterval = setInterval(checkStatus, 10000); // 10 seconds
+            } else {
+                if (autoRefreshInterval) {
+                    clearInterval(autoRefreshInterval);
+                    autoRefreshInterval = null;
+                }
+            }
+        };
+
+        // Initial load
+        checkStatus();
+        
+        // Start auto-refresh
+        autoRefreshInterval = setInterval(checkStatus, 10000);
+    </script>
+</body>
+</html>

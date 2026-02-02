@@ -1,0 +1,236 @@
+DynamicJsonDocument flightData(1024);
+if (GetFlight("Departure", String(departureFlights[i]), flightData)) {
+
+JsonObject depObj = allData["Departure"].as<JsonObject>();
+JsonObject newFlight = depObj.createNestedObject(departureFlights[i]);
+
+for (JsonPair kv : flightData.as<JsonObject>()) {
+    newFlight[kv.key()] = kv.value();
+}
+Serial.print("✅ ");
+Serial.println(departureFlights[i]);
+} else {
+Serial.print("⚠ ");
+Serial.println(departureFlights[i]);
+}#include "Global.h"
+// Global server object
+AsyncWebServer server(SERVER_PORT);
+
+void setup()
+{
+  Serial.begin(DEFAULT_BAUD_RATE);
+  delay(100);
+
+  Serial.println("\n\n=== ESP32-S3 File Manager Starting ===\n");
+
+  // Initialize LittleFS
+  if (!LittleFS_Init())
+  {
+    Serial.println("System halted - LittleFS initialization failed");
+    return;
+  }
+
+  // Initialize Authentication System
+  Auth_Init();
+
+  // Connect to WiFi
+  WiFi_Init();
+
+  // Initialize Firebase
+  Firebase_Init();
+
+  // Setup server routes
+  Server_Setup();
+
+  // Start server
+  server.begin();
+
+  Serial.println("HTTP Server Started");
+  Serial.print("Access at: http://");
+  Serial.print(WiFi_GetLocalIP());
+  Serial.println("/");
+
+  // Upload sample flight data to Firebase
+  delay(2000); // Wait for Firebase to be fully ready
+  Serial.print("Free PSRAM: ");
+Serial.println(ESP.getFreePsram());
+}
+unsigned long lastFetchTime = 0;
+const unsigned long FETCH_INTERVAL = 600000; // 10 minutes in milliseconds
+bool Start = true;
+void loop()
+{
+  void WiFi_STA_Reconnect_Handler();
+  app.loop();
+
+  // Fetch flight data every 10 minutes
+  if ((millis() - lastFetchTime) >= FETCH_INTERVAL || Start)
+  {
+    Start = false;
+    Serial.println("\n🔄 Fetching flight data...");
+
+    // Fetch Departure flights
+    Serial.println("📍 Fetching DEPARTURE flights...");
+    Fetch("configs/FREE/departure_int.cfg", "Departure");
+    delay(1000);
+
+    // Fetch Arrival flights
+    Serial.println("📍 Fetching ARRIVAL flights...");
+    Fetch("configs/FREE/arrival_int.cfg", "Arrival");
+    while (!Firebase_IsReady())
+    {
+      app.loop();
+      delay(10);
+    }
+
+    // Print flight numbers
+    Serial.println("\n✈️ DEPARTURE FLIGHTS:");
+    if (allData.containsKey("Departure"))
+    {
+      JsonObject departures = allData["Departure"];
+      for (JsonPair p : departures)
+      {
+        JsonObject flightObj = p.value();
+
+        DynamicJsonDocument flightDoc(512);
+        flightDoc.set(flightObj); // Copy JsonObject into JsonDocument
+
+        if (UpdateFlight("Departure", String(p.key().c_str()), flightDoc))
+        {
+          Serial.println("Flight updated or created successfully!");
+        }
+        else
+        {
+          Serial.println("Failed to update or create flight.");
+        }
+        delay(10);
+
+        String flightNumber = flightObj["flnr"] | "N/A";
+        Serial.print("  ");
+        Serial.println(flightNumber);
+      }
+    }
+
+    Serial.println("\n✈️ ARRIVAL FLIGHTS:");
+    if (allData.containsKey("Arrival"))
+    {
+      JsonObject arrivals = allData["Arrival"];
+      for (JsonPair p : arrivals)
+      {
+        JsonObject flightObj = p.value();
+
+        DynamicJsonDocument flightDoc(512);
+        flightDoc.set(flightObj); // Copy JsonObject into JsonDocument
+
+        if (UpdateFlight("Arrival", String(p.key().c_str()), flightDoc))
+        {
+          Serial.println("Flight updated or created successfully!");
+        }
+        else
+        {
+          Serial.println("Failed to update or create flight.");
+        }
+        delay(10);
+
+        String flightNumber = flightObj["flnr"] | "N/A";
+        Serial.print("  ");
+        Serial.println(flightNumber);
+      }
+    }
+    DynamicJsonDocument flightData(1024);
+
+    // Array of all departure flights to fetch from Firebase
+    const char* departureFlights[] = {
+      "2512100855_QR615", "2512100900_EK613", "2512100940_CZ6008", "2512100950_SV725",
+      "2512101000_PK6245", "2512101010_PF784", "2512101020_TK751", "2512101040_SV723",
+      "2512101050_PF734", "2512101200_FZ354", "2512101200_HZA4", "2512101205_PF728",
+      "2512101300_O3234", "2512101300_PA216", "2512101420_PK261", "2512101500_RQ928",
+      "2512101750_SV729", "2512101925_EY301", "2512101945_9P780", "2512101945_PF768",
+      "2512102015_9P742", "2512102030_PA274", "2512102120_PF718", "2512102230_PK143",
+      "2512102315_PA270", "2512102330_TG350", "2512110010_PK233", "2512110035_PA210",
+      "2512110155_PF746", "2512110200_SV727", "2512110240_J2144", "2512110310_QR633",
+      "2512110315_EK615", "2512110405_XY316", "2512110430_EY303", "2512110600_PK894",
+      "2512110615_TK711", "2512110810_PK167", "2512110855_QR615", "2512110900_EK613",
+      "2512110950_SV725"
+    };
+
+    // Array of all arrival flights to fetch from Firebase
+    const char* arrivalFlights[] = {
+      "2512100650_PK702", "2512100715_EK612", "2512100725_QR614", "2512100735_PA277",
+      "2512100810_CZ6007", "2512100810_PK234", "2512100810_SV724", "2512100850_TK750",
+      "2512100900_SV722", "2512100905_PF799", "2512100915_PA211", "2512100920_PF719",
+      "2512100940_9P745", "2512101100_FZ353", "2512101100_HZA4", "2512101130_O3233",
+      "2512101200_PA273", "2512101310_9P741", "2512101330_RQ927", "2512101610_SV728",
+      "2512101740_PF735", "2512101755_PF785", "2512101815_EY300", "2512101910_PK288",
+      "2512101930_PK6246", "2512102105_PA217", "2512102220_PK262", "2512102220_TG349",
+      "2512110005_PF729", "2512110020_SV726", "2512110130_EK614", "2512110140_J2143",
+      "2512110140_QR632", "2512110255_9P707", "2512110310_EY302", "2512110315_XY315",
+      "2512110325_9P743", "2512110330_PK742", "2512110415_9P711", "2512110445_TK710",
+      "2512110515_9P781", "2512110545_PF769", "2512110635_PK144", "2512110715_EK612",
+      "2512110725_QR614", "2512110735_PA275", "2512110810_PK234", "2512110810_SV724",
+      "2512110850_TK750", "2512110900_PA231", "2512110900_SV722", "2512110915_PA211",
+      "2512110920_PF719", "2512111010_W51185", "2512111030_PF747", "2512111100_FZ353",
+      "2512111200_PA271", "2512111310_9P741", "2512111330_RQ927", "2512111420_GF770",
+      "2512111750_PK262", "2512111800_CA945", "2512111815_EY300", "2512111835_PK168",
+      "2512111835_PK895", "2512111840_9P701", "2512111900_PF785", "2512111930_PK182",
+      "2512111935_PK754"
+    };
+
+    // Fetch all Departure flights from Firebase
+    Serial.println("\n📥 Fetching DEPARTURE flights from Firebase...");
+    int depCount = sizeof(departureFlights) / sizeof(departureFlights[0]);
+    for (int i = 0; i < depCount; i++) {
+      flightData.clear();
+      if (GetFlight("Departure", String(departureFlights[i]), flightData)) {
+        // Add to allData under Departure with the key
+        if (!allData.containsKey("Departure")) {
+          allData.createNestedObject("Departure");
+        }
+        JsonObject depObj = allData["Departure"].as<JsonObject>();
+        JsonObject newFlight = depObj.createNestedObject(departureFlights[i]);
+        
+        for (JsonPair kv : flightData.as<JsonObject>()) {
+          newFlight[kv.key()] = kv.value();
+        }
+        Serial.print("✅ ");
+        Serial.println(departureFlights[i]);
+      } else {
+        Serial.print("⚠ ");
+        Serial.println(departureFlights[i]);
+      }
+      delay(50); // Small delay between requests
+    }
+
+    // Fetch all Arrival flights from Firebase
+    Serial.println("\n📥 Fetching ARRIVAL flights from Firebase...");
+    int arrCount = sizeof(arrivalFlights) / sizeof(arrivalFlights[0]);
+    for (int i = 0; i < arrCount; i++) {
+      flightData.clear();
+      if (GetFlight("Arrival", arrivalFlights[i], flightData)) {
+        // Add to allData under Arrival with the key
+        if (!allData.containsKey("Arrival")) {
+          allData.createNestedObject("Arrival");
+        }
+        JsonObject arrObj = allData["Arrival"].as<JsonObject>();
+        JsonObject newFlight = arrObj.createNestedObject(arrivalFlights[i]);
+        
+        for (JsonPair kv : flightData.as<JsonObject>()) {
+          newFlight[kv.key()] = kv.value();
+        }
+        Serial.print("✅ ");
+        Serial.println(arrivalFlights[i]);
+      } else {
+        Serial.print("⚠ ");
+        Serial.println(arrivalFlights[i]);
+      }
+      delay(50); // Small delay between requests
+    }
+
+    Serial.println("\n✈️ All flights loaded into allData from Firebase");
+
+    Serial.println("⏳ Next fetch in 10 minutes...\n");
+    lastFetchTime = millis();
+  }
+
+  delay(10);
+}
