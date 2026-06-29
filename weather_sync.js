@@ -91,10 +91,6 @@ async function syncWeatherToFirebase(db, cities = APP_WEATHER_CITIES) {
     await db.ref().update(updates);
     console.log(`Successfully synced weather for ${Object.keys(updates).length} cities.`);
 
-    const lastUpdateStr = moment().tz('Asia/Karachi').format('D MMM YYYY hh:mm A');
-    await db.ref('/lastWeatherUpdate').set(lastUpdateStr);
-    console.log(`Weather last update set to: ${lastUpdateStr}`);
-
     return { synced: Object.keys(updates).length };
 }
 
