@@ -4,6 +4,7 @@ const fs = require('fs');
 const https = require('https');
 const admin = require('firebase-admin');
 const serviceAccount = require('./serviceAccountKey.json');
+const { syncWeatherToFirebase } = require('./weather_sync');
 
 // Initialize Firebase Admin SDK
 try {
@@ -263,6 +264,12 @@ async function main() {
             const lastUpdateStr = moment().tz('Asia/Karachi').format('D MMM YYYY hh:mm A');
             await db.ref('/lastUpdate').set(lastUpdateStr);
             console.log(`Global Last Update time set to: ${lastUpdateStr}`);
+
+            try {
+                await syncWeatherToFirebase(db);
+            } catch (weatherError) {
+                console.error('Weather sync failed after flight sync:', weatherError.message);
+            }
 
             process.exit(0);
         }
