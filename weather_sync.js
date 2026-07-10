@@ -1,13 +1,15 @@
 const axios = require('axios');
 const moment = require('moment-timezone');
 
-// Same five cities hardcoded in the Flutter app (home_screen.dart).
+// Cities synced to /weather/{cityName} after each GitHub Actions flight sync.
 const APP_WEATHER_CITIES = [
     { name: 'Islamabad', lat: 33.6844, lng: 73.0479 },
     { name: 'Karachi', lat: 24.8607, lng: 67.0011 },
     { name: 'Lahore', lat: 31.5204, lng: 74.3587 },
     { name: 'Faisalabad', lat: 31.4504, lng: 73.1350 },
     { name: 'Peshawar', lat: 34.0151, lng: 71.5249 },
+    { name: 'Quetta', lat: 30.2514, lng: 66.9378 },      // UET / OPQT
+    { name: 'Sialkot', lat: 32.5356, lng: 74.3642 },     // SKT / OPST
 ];
 
 const BASE_URL = 'https://api.open-meteo.com/v1/forecast';
