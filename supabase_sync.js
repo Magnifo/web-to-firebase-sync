@@ -119,7 +119,7 @@ async function resolveCityIds(url, key, cityNames) {
 
 /**
  * Bulk-upsert website-managed flight fields into public.flights.
- * Uses cities.id FK (city_id) + denormalized city name.
+ * Uses cities.id FK (city_id). City name comes from public.cities via v_flights.
  * Only touch managed scrape fields; ops columns stay intact.
  *
  * @param {Record<string, { Arrival?: object, Departure?: object }>} structuredData
@@ -157,7 +157,6 @@ async function syncFlightsToSupabase(structuredData, lastUpdateStr) {
 
         flightRows.push({
           city_id: cityId,
-          city,
           direction,
           flight_key: String(flightKey),
           airline_code: airline || null,
