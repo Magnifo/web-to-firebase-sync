@@ -5,6 +5,7 @@ const https = require('https');
 const admin = require('firebase-admin');
 const serviceAccount = require('./serviceAccountKey.json');
 const { syncWeatherToFirebase } = require('./weather_sync');
+const { syncFlightsToSupabase } = require('./supabase_sync');
 
 // Initialize Firebase Admin SDK
 try {
@@ -220,7 +221,7 @@ async function main() {
         });
 
         if (db) {
-            console.log('Pushing data to Firebase (Field-based, Per-Flight)...');
+            console.log('Pushing data to Firebase (Field-based, Per-Flight) + Supabase (bulk)...');
 
             const managedFields = ['flnr', 'airline', 'SubCat', 'city_lu', 'prem_lu', 'stm', 'att', 'est'];
             const updatePromises = [];
@@ -252,18 +253,38 @@ async function main() {
                 }
             }
 
-            if (updatePromises.length > 0) {
-                console.log(`Updating ${updatePromises.length} flights individually...`);
-                await Promise.all(updatePromises);
-                console.log('Successfully updated all flights.');
-            } else {
-                console.log('No data to update.');
-            }
-
-            // Always update the 'lastUpdate' timestamp
             const lastUpdateStr = moment().tz('Asia/Karachi').format('D MMM YYYY hh:mm A');
-            await db.ref('/lastUpdate').set(lastUpdateStr);
-            console.log(`Global Last Update time set to: ${lastUpdateStr}`);
+
+            const firebaseFlightsTask = (async () => {
+                if (updatePromises.length > 0) {
+                    console.log(`RTDB: updating ${updatePromises.length} flights individually...`);
+                    await Promise.all(updatePromises);
+                    console.log('RTDB: successfully updated all flights.');
+                } else {
+                    console.log('RTDB: no flight data to update.');
+                }
+                await db.ref('/lastUpdate').set(lastUpdateStr);
+                console.log(`RTDB: global Last Update time set to: ${lastUpdateStr}`);
+            })();
+
+            // Parallel dual-write: bulk upsert to Supabase (does not block / fail RTDB).
+            const supabaseFlightsTask = syncFlightsToSupabase(structuredData, lastUpdateStr)
+                .catch((err) => {
+                    console.error('Supabase flight sync failed (RTDB unaffected):', err.message);
+                    return { error: err.message };
+                });
+
+            const [firebaseResult, supabaseResult] = await Promise.allSettled([
+                firebaseFlightsTask,
+                supabaseFlightsTask,
+            ]);
+
+            if (firebaseResult.status === 'rejected') {
+                console.error('RTDB flight sync failed:', firebaseResult.reason);
+            }
+            if (supabaseResult.status === 'fulfilled') {
+                console.log('Supabase flight sync result:', supabaseResult.value);
+            }
 
             try {
                 await syncWeatherToFirebase(db);
@@ -271,7 +292,7 @@ async function main() {
                 console.error('Weather sync failed after flight sync:', weatherError.message);
             }
 
-            process.exit(0);
+            process.exit(firebaseResult.status === 'rejected' ? 1 : 0);
         }
 
     } catch (error) {
