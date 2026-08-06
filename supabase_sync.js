@@ -68,10 +68,59 @@ async function upsertTable(url, key, table, rows, onConflict) {
   return written;
 }
 
+async function getJson(url, key, path) {
+  const res = await axios.get(`${url}/rest/v1/${path}`, {
+    headers: restHeaders(key, 'return=representation'),
+    timeout: 60000,
+    validateStatus: (status) => status >= 200 && status < 300,
+  });
+  return res.data;
+}
+
+/** Load cities.name -> id. Creates missing cities as stubs so FK upserts succeed. */
+async function resolveCityIds(url, key, cityNames) {
+  const unique = [...new Set(cityNames.map((n) => String(n || '').trim()).filter(Boolean))];
+  if (!unique.length) return new Map();
+
+  const existing = await getJson(
+    url,
+    key,
+    `cities?select=id,name&name=in.(${unique.map((n) => `"${n.replace(/"/g, '')}"`).join(',')})`
+  );
+  const byName = new Map();
+  for (const row of existing || []) {
+    if (row?.name != null && row?.id != null) byName.set(String(row.name), Number(row.id));
+  }
+
+  const missing = unique.filter((n) => !byName.has(n));
+  if (missing.length) {
+    console.log(`Supabase: creating ${missing.length} missing cities: ${missing.join(', ')}`);
+    const stubs = missing.map((name, index) => ({
+      name,
+      enabled: true,
+      latitude: 0,
+      longitude: 0,
+      timezone: 'Asia/Karachi',
+      sort_order: 500 + index,
+    }));
+    await upsertTable(url, key, 'cities', stubs, 'name');
+    const created = await getJson(
+      url,
+      key,
+      `cities?select=id,name&name=in.(${missing.map((n) => `"${n.replace(/"/g, '')}"`).join(',')})`
+    );
+    for (const row of created || []) {
+      if (row?.name != null && row?.id != null) byName.set(String(row.name), Number(row.id));
+    }
+  }
+
+  return byName;
+}
+
 /**
  * Bulk-upsert website-managed flight fields into public.flights.
- * Only touch: flnr, airline_code, sub_cat, city_lu, prem_lu, stm, att, est
- * (+ keys / last_updated). Ops fields (gates, loaders, field_meta, …) stay intact.
+ * Uses cities.id FK (city_id) + denormalized city name.
+ * Only touch managed scrape fields; ops columns stay intact.
  *
  * @param {Record<string, { Arrival?: object, Departure?: object }>} structuredData
  * @param {string} [lastUpdateStr]
@@ -83,8 +132,16 @@ async function syncFlightsToSupabase(structuredData, lastUpdateStr) {
   const { url, key } = cfg;
   const flightRows = [];
   const airlinesByCode = new Map();
+  const cityNames = Object.keys(structuredData || {});
 
-  for (const city of Object.keys(structuredData || {})) {
+  const cityIdsByName = await resolveCityIds(url, key, cityNames);
+
+  for (const city of cityNames) {
+    const cityId = cityIdsByName.get(city);
+    if (!cityId) {
+      console.error(`Supabase: skip city "${city}" — no cities.id`);
+      continue;
+    }
     const directions = structuredData[city] || {};
     for (const direction of Object.keys(directions)) {
       if (direction !== 'Arrival' && direction !== 'Departure') continue;
@@ -99,6 +156,7 @@ async function syncFlightsToSupabase(structuredData, lastUpdateStr) {
         }
 
         flightRows.push({
+          city_id: cityId,
           city,
           direction,
           flight_key: String(flightKey),
@@ -117,7 +175,7 @@ async function syncFlightsToSupabase(structuredData, lastUpdateStr) {
   }
 
   console.log(
-    `Supabase: upserting ${airlinesByCode.size} airline stubs + ${flightRows.length} flights (bulk)...`
+    `Supabase: upserting ${airlinesByCode.size} airline stubs + ${flightRows.length} flights (bulk via city_id)...`
   );
   const started = Date.now();
 
@@ -130,7 +188,7 @@ async function syncFlightsToSupabase(structuredData, lastUpdateStr) {
     key,
     'flights',
     flightRows,
-    'city,direction,flight_key'
+    'city_id,direction,flight_key'
   );
 
   if (lastUpdateStr) {
@@ -150,6 +208,7 @@ async function syncFlightsToSupabase(structuredData, lastUpdateStr) {
     skipped: false,
     airlines: airlinesByCode.size,
     flights: flightsWritten,
+    cities: cityIdsByName.size,
   };
 }
 
