@@ -1,6 +1,8 @@
 const axios = require('axios');
 const moment = require('moment-timezone');
 
+const { syncWeatherToSupabase } = require('./supabase_sync');
+
 // Cities synced to /weather/{cityName} after each GitHub Actions flight sync.
 const APP_WEATHER_CITIES = [
     { name: 'Islamabad', lat: 33.6844, lng: 73.0479 },
@@ -55,45 +57,54 @@ async function fetchWeatherData(cityObj) {
 }
 
 /**
- * Push current weather for each city to /weather/{cityName} in Firebase RTDB.
+ * Push current weather for each city to /weather/{cityName} in Firebase RTDB,
+ * and patch matching rows on Supabase public.cities (weather columns only).
  * @param {admin.database.Database} db
  * @param {Array<{name:string,lat:number,lng:number}>} cities
  */
 async function syncWeatherToFirebase(db, cities = APP_WEATHER_CITIES) {
-    console.log('Starting Weather Sync (Open-Meteo)...');
-    const updates = {};
+  console.log('Starting Weather Sync (Open-Meteo)...');
+  const updates = {};
+  const weatherByCity = {};
 
-    for (const city of cities) {
-        const data = await fetchWeatherData(city);
+  for (const city of cities) {
+    const data = await fetchWeatherData(city);
 
-        if (data && data.current) {
-            const cw = data.current;
-            const weatherObj = {
-                temp: cw.temperature_2m,
-                feels_like: cw.apparent_temperature,
-                condition: getWeatherDescription(cw.weather_code),
-                weathercode: cw.weather_code,
-                icon: getWeatherIcon(cw.weather_code),
-                humidity: cw.relative_humidity_2m,
-                wind_speed: cw.wind_speed_10m,
-                visibility: cw.visibility,
-                lastUpdated: moment().tz('Asia/Karachi').format('YYYY-MM-DD HH:mm:ss'),
-            };
+    if (data && data.current) {
+      const cw = data.current;
+      const weatherObj = {
+        temp: cw.temperature_2m,
+        feels_like: cw.apparent_temperature,
+        condition: getWeatherDescription(cw.weather_code),
+        weathercode: cw.weather_code,
+        icon: getWeatherIcon(cw.weather_code),
+        humidity: cw.relative_humidity_2m,
+        wind_speed: cw.wind_speed_10m,
+        visibility: cw.visibility,
+        lastUpdated: moment().tz('Asia/Karachi').format('YYYY-MM-DD HH:mm:ss'),
+      };
 
-            updates[`/weather/${city.name}`] = weatherObj;
-            console.log(`Fetched ${city.name}: ${weatherObj.temp}°C, ${weatherObj.condition}`);
-        }
+      updates[`/weather/${city.name}`] = weatherObj;
+      weatherByCity[city.name] = weatherObj;
+      console.log(`Fetched ${city.name}: ${weatherObj.temp}°C, ${weatherObj.condition}`);
     }
+  }
 
-    if (Object.keys(updates).length === 0) {
-        console.log('No weather data collected to update.');
-        return { synced: 0 };
-    }
+  if (Object.keys(updates).length === 0) {
+    console.log('No weather data collected to update.');
+    return { synced: 0 };
+  }
 
-    await db.ref().update(updates);
-    console.log(`Successfully synced weather for ${Object.keys(updates).length} cities.`);
+  await db.ref().update(updates);
+  console.log(`Successfully synced weather for ${Object.keys(updates).length} cities.`);
 
-    return { synced: Object.keys(updates).length };
+  try {
+    await syncWeatherToSupabase(weatherByCity);
+  } catch (error) {
+    console.error('Supabase weather sync failed (RTDB weather OK):', error.message);
+  }
+
+  return { synced: Object.keys(updates).length, weatherByCity };
 }
 
 async function main() {

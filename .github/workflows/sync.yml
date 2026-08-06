@@ -26,6 +26,10 @@ jobs:
         run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > serviceAccountKey.json
 
       - name: Run Sync Script
+        env:
+          # Dual-write: RTDB (existing) + Supabase public.flights / cities weather
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node index.js
 
       - name: Commit and Push Data (Persist State)
