@@ -1,9 +1,9 @@
 const axios = require('axios');
 const moment = require('moment-timezone');
-
 const { syncWeatherToSupabase } = require('./supabase_sync');
 
-// Cities synced to /weather/{cityName} after each GitHub Actions flight sync.
+// Cities synced to Supabase weather_cache + cities weather columns
+// (formerly /weather/{cityName} in Firebase RTDB).
 const APP_WEATHER_CITIES = [
     { name: 'Islamabad', lat: 33.6844, lng: 73.0479 },
     { name: 'Karachi', lat: 24.8607, lng: 67.0011 },
@@ -56,75 +56,78 @@ async function fetchWeatherData(cityObj) {
     }
 }
 
+async function collectWeatherByCity(cities = APP_WEATHER_CITIES) {
+    console.log('Starting Weather Sync (Open-Meteo)...');
+    const weatherByCity = {};
+    const lastUpdated = moment().tz('Asia/Karachi').format('YYYY-MM-DD HH:mm:ss');
+
+    for (const city of cities) {
+        const data = await fetchWeatherData(city);
+
+        if (data && data.current) {
+            const cw = data.current;
+            const weatherObj = {
+                temp: cw.temperature_2m,
+                feels_like: cw.apparent_temperature,
+                condition: getWeatherDescription(cw.weather_code),
+                weathercode: cw.weather_code,
+                icon: getWeatherIcon(cw.weather_code),
+                humidity: cw.relative_humidity_2m,
+                wind_speed: cw.wind_speed_10m,
+                visibility: cw.visibility,
+                lastUpdated,
+            };
+
+            weatherByCity[city.name] = weatherObj;
+            console.log(`Fetched ${city.name}: ${weatherObj.temp}°C, ${weatherObj.condition}`);
+        }
+    }
+
+    return weatherByCity;
+}
+
 /**
- * Push current weather for each city to /weather/{cityName} in Firebase RTDB,
- * and patch matching rows on Supabase public.cities (weather columns only).
+ * Fetch Open-Meteo and write to Supabase (cities weather cols + weather_cache).
+ */
+async function collectWeatherAndSyncToSupabase(cities = APP_WEATHER_CITIES) {
+    const weatherByCity = await collectWeatherByCity(cities);
+    if (!Object.keys(weatherByCity).length) {
+        console.log('No weather data collected to update.');
+        return { synced: 0 };
+    }
+    return syncWeatherToSupabase(weatherByCity);
+}
+
+/**
+ * Firebase RTDB weather write — DISABLED (kept for reference).
  * @param {admin.database.Database} db
  * @param {Array<{name:string,lat:number,lng:number}>} cities
  */
 async function syncWeatherToFirebase(db, cities = APP_WEATHER_CITIES) {
-  console.log('Starting Weather Sync (Open-Meteo)...');
-  const updates = {};
-  const weatherByCity = {};
-
-  for (const city of cities) {
-    const data = await fetchWeatherData(city);
-
-    if (data && data.current) {
-      const cw = data.current;
-      const weatherObj = {
-        temp: cw.temperature_2m,
-        feels_like: cw.apparent_temperature,
-        condition: getWeatherDescription(cw.weather_code),
-        weathercode: cw.weather_code,
-        icon: getWeatherIcon(cw.weather_code),
-        humidity: cw.relative_humidity_2m,
-        wind_speed: cw.wind_speed_10m,
-        visibility: cw.visibility,
-        lastUpdated: moment().tz('Asia/Karachi').format('YYYY-MM-DD HH:mm:ss'),
-      };
-
-      updates[`/weather/${city.name}`] = weatherObj;
-      weatherByCity[city.name] = weatherObj;
-      console.log(`Fetched ${city.name}: ${weatherObj.temp}°C, ${weatherObj.condition}`);
-    }
-  }
-
-  if (Object.keys(updates).length === 0) {
-    console.log('No weather data collected to update.');
+    // --- Firebase weather writes (DISABLED) ---
+    // const updates = {};
+    // const weatherByCity = await collectWeatherByCity(cities);
+    // for (const [name, weatherObj] of Object.entries(weatherByCity)) {
+    //     updates[`/weather/${name}`] = weatherObj;
+    // }
+    // if (Object.keys(updates).length === 0) return { synced: 0 };
+    // await db.ref().update(updates);
+    // await syncWeatherToSupabase(weatherByCity);
+    // return { synced: Object.keys(updates).length, weatherByCity };
+    console.warn('syncWeatherToFirebase is disabled; use collectWeatherAndSyncToSupabase.');
     return { synced: 0 };
-  }
-
-  await db.ref().update(updates);
-  console.log(`Successfully synced weather for ${Object.keys(updates).length} cities.`);
-
-  try {
-    await syncWeatherToSupabase(weatherByCity);
-  } catch (error) {
-    console.error('Supabase weather sync failed (RTDB weather OK):', error.message);
-  }
-
-  return { synced: Object.keys(updates).length, weatherByCity };
+    // --- end Firebase weather writes ---
 }
 
 async function main() {
-    const admin = require('firebase-admin');
-    const serviceAccount = require('./serviceAccountKey.json');
+    // --- Firebase standalone weather main (DISABLED) ---
+    // const admin = require('firebase-admin');
+    // const serviceAccount = require('./serviceAccountKey.json');
+    // ...
+    // await syncWeatherToFirebase(db);
+    // --- end Firebase standalone ---
 
-    try {
-        if (!admin.apps.length) {
-            admin.initializeApp({
-                credential: admin.credential.cert(serviceAccount),
-                databaseURL: 'https://aseengrs-7f20c-default-rtdb.asia-southeast1.firebasedatabase.app',
-            });
-            console.log('Firebase Admin initialized.');
-        }
-    } catch (error) {
-        console.warn('Firebase initialization warning:', error.message);
-    }
-
-    const db = admin.database();
-    await syncWeatherToFirebase(db);
+    await collectWeatherAndSyncToSupabase();
     process.exit(0);
 }
 
@@ -138,4 +141,5 @@ if (require.main === module) {
 module.exports = {
     APP_WEATHER_CITIES,
     syncWeatherToFirebase,
+    collectWeatherAndSyncToSupabase,
 };

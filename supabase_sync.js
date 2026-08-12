@@ -1,13 +1,10 @@
 /**
- * Parallel Supabase writer for the PAA flight/weather sync.
- * Uses PostgREST bulk upserts (chunked) — not field-by-field RTDB updates.
+ * Supabase writer for the PAA flight/weather sync (Firebase RTDB disabled).
+ * Uses PostgREST bulk upserts (chunked).
  *
  * Required env (GitHub Actions secrets):
  *   SUPABASE_URL
  *   SUPABASE_SERVICE_ROLE_KEY
- *
- * Safe for dual-write: never throws if env is missing; callers should
- * catch so Firebase RTDB sync stays independent.
  */
 
 const axios = require('axios');
@@ -18,10 +15,9 @@ function getConfig() {
   const url = (process.env.SUPABASE_URL || '').trim().replace(/\/$/, '');
   const key = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
   if (!url || !key) {
-    console.warn(
-      'Supabase sync skipped: set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY'
+    throw new Error(
+      'Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY (set GitHub Actions secrets).'
     );
-    return null;
   }
   return { url, key };
 }
@@ -126,10 +122,7 @@ async function resolveCityIds(url, key, cityNames) {
  * @param {string} [lastUpdateStr]
  */
 async function syncFlightsToSupabase(structuredData, lastUpdateStr) {
-  const cfg = getConfig();
-  if (!cfg) return { skipped: true };
-
-  const { url, key } = cfg;
+  const { url, key } = getConfig();
   const flightRows = [];
   const airlinesByCode = new Map();
   const cityNames = Object.keys(structuredData || {});
@@ -195,7 +188,10 @@ async function syncFlightsToSupabase(structuredData, lastUpdateStr) {
       url,
       key,
       'sync_meta',
-      [{ key: 'lastUpdate', value: String(lastUpdateStr) }],
+      [
+        { key: 'lastUpdate', value: String(lastUpdateStr) },
+        { key: 'last_update', value: String(lastUpdateStr) },
+      ],
       'key'
     );
   }
@@ -212,23 +208,20 @@ async function syncFlightsToSupabase(structuredData, lastUpdateStr) {
 }
 
 /**
- * Patch weather columns on public.cities by name.
+ * Patch weather on public.cities by name and upsert public.weather_cache.
  * Does not insert missing cities and never changes enabled / logo / coords.
  *
  * @param {Record<string, object>} weatherByCity
  */
 async function syncWeatherToSupabase(weatherByCity) {
-  const cfg = getConfig();
-  if (!cfg) return { skipped: true };
-
-  const { url, key } = cfg;
+  const { url, key } = getConfig();
   const names = Object.keys(weatherByCity || {});
   if (!names.length) return { skipped: false, synced: 0 };
 
-  console.log(`Supabase: patching weather on cities (${names.length})...`);
+  console.log(`Supabase: writing weather (${names.length} cities)...`);
   let synced = 0;
 
-  // Small parallel batches — cities table is tiny.
+  const cacheRows = [];
   const concurrency = 4;
   for (let i = 0; i < names.length; i += concurrency) {
     const slice = names.slice(i, i + concurrency);
@@ -255,12 +248,28 @@ async function syncWeatherToSupabase(weatherByCity) {
             validateStatus: (status) => status >= 200 && status < 300,
           }
         );
+        cacheRows.push({
+          city: name,
+          temp: w.temp ?? null,
+          feels_like: w.feels_like ?? null,
+          humidity: w.humidity ?? null,
+          condition: w.condition ?? null,
+          icon: w.icon ?? null,
+          weathercode: w.weathercode ?? null,
+          wind_speed: w.wind_speed ?? null,
+          visibility: w.visibility ?? null,
+          last_updated: w.lastUpdated || w.last_updated || null,
+        });
         synced += 1;
       })
     );
   }
 
-  console.log(`Supabase: weather patched for ${synced} cities`);
+  if (cacheRows.length) {
+    await upsertTable(url, key, 'weather_cache', cacheRows, 'city');
+  }
+
+  console.log(`Supabase: weather written for ${synced} cities (cities + weather_cache)`);
   return { skipped: false, synced };
 }
 

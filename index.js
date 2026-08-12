@@ -2,23 +2,22 @@ const axios = require('axios');
 const moment = require('moment-timezone');
 const fs = require('fs');
 const https = require('https');
-const admin = require('firebase-admin');
-const serviceAccount = require('./serviceAccountKey.json');
-const { syncWeatherToFirebase } = require('./weather_sync');
+// --- Firebase (DISABLED — kept for reference; sync target is Supabase) ---
+// const admin = require('firebase-admin');
+// const serviceAccount = require('./serviceAccountKey.json');
+// try {
+//     admin.initializeApp({
+//         credential: admin.credential.cert(serviceAccount),
+//         databaseURL: "https://aseengrs-7f20c-default-rtdb.asia-southeast1.firebasedatabase.app"
+//     });
+//     console.log('Firebase Admin initialized.');
+// } catch (error) {
+//     console.warn('Firebase initialization warning:', error.message);
+// }
+// const db = admin.database();
+// --- end Firebase ---
+const { collectWeatherAndSyncToSupabase } = require('./weather_sync');
 const { syncFlightsToSupabase } = require('./supabase_sync');
-
-// Initialize Firebase Admin SDK
-try {
-    admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
-        databaseURL: "https://aseengrs-7f20c-default-rtdb.asia-southeast1.firebasedatabase.app"
-    });
-    console.log('Firebase Admin initialized.');
-} catch (error) {
-    console.warn('Firebase initialization warning:', error.message);
-}
-
-const db = admin.database();
 
 // Configuration
 const CITIES = ['Islamabad', 'Karachi', 'Lahore', 'Peshawar', 'Quetta', 'Multan', 'Faisalabad', 'Sialkot'];
@@ -220,83 +219,53 @@ async function main() {
             }
         });
 
-        if (db) {
-            console.log('Pushing data to Firebase (Field-based, Per-Flight) + Supabase (bulk)...');
+        // --- Firebase RTDB writes (DISABLED) ---
+        // if (db) {
+        //     console.log('Pushing data to Firebase (Field-based, Per-Flight)...');
+        //     const managedFields = ['flnr', 'airline', 'SubCat', 'city_lu', 'prem_lu', 'stm', 'att', 'est'];
+        //     const updatePromises = [];
+        //     for (const city in structuredData) {
+        //         for (const type in structuredData[city]) {
+        //             for (const key in structuredData[city][type]) {
+        //                 const flight = structuredData[city][type][key];
+        //                 const flightUpdates = {};
+        //                 let hasUpdates = false;
+        //                 for (const field of managedFields) {
+        //                     if (flight[field] !== undefined) {
+        //                         flightUpdates[field] = flight[field];
+        //                         hasUpdates = true;
+        //                     }
+        //                 }
+        //                 if (hasUpdates) {
+        //                     const p = db.ref(`/flights/${city}/${type}/${key}`).update(flightUpdates)
+        //                         .catch(err => console.error(`Failed to update ${city}/${type}/${key}:`, err.message));
+        //                     updatePromises.push(p);
+        //                 }
+        //             }
+        //         }
+        //     }
+        //     ...
+        //     await db.ref('/lastUpdate').set(lastUpdateStr);
+        //     await syncWeatherToFirebase(db);
+        // }
+        // --- end Firebase writes ---
 
-            const managedFields = ['flnr', 'airline', 'SubCat', 'city_lu', 'prem_lu', 'stm', 'att', 'est'];
-            const updatePromises = [];
+        const lastUpdateStr = moment().tz('Asia/Karachi').format('D MMM YYYY hh:mm A');
+        console.log('Pushing data to Supabase...');
+        const supabaseResult = await syncFlightsToSupabase(structuredData, lastUpdateStr);
+        console.log('Supabase flight sync result:', supabaseResult);
 
-            for (const city in structuredData) {
-                for (const type in structuredData[city]) {
-                    for (const key in structuredData[city][type]) {
-                        const flight = structuredData[city][type][key];
-
-                        // Construct field-specific updates for this SINGLE FLIGHT
-                        const flightUpdates = {};
-                        let hasUpdates = false;
-
-                        for (const field of managedFields) {
-                            if (flight[field] !== undefined) {
-                                flightUpdates[field] = flight[field];
-                                hasUpdates = true;
-                            }
-                        }
-
-                        if (hasUpdates) {
-                            // Path: /flights/City/Type/Key
-                            // Update ONLY the managed fields for this flight to avoid overwriting other props (like custom ones from other devices)
-                            const p = db.ref(`/flights/${city}/${type}/${key}`).update(flightUpdates)
-                                .catch(err => console.error(`Failed to update ${city}/${type}/${key}:`, err.message));
-                            updatePromises.push(p);
-                        }
-                    }
-                }
-            }
-
-            const lastUpdateStr = moment().tz('Asia/Karachi').format('D MMM YYYY hh:mm A');
-
-            const firebaseFlightsTask = (async () => {
-                if (updatePromises.length > 0) {
-                    console.log(`RTDB: updating ${updatePromises.length} flights individually...`);
-                    await Promise.all(updatePromises);
-                    console.log('RTDB: successfully updated all flights.');
-                } else {
-                    console.log('RTDB: no flight data to update.');
-                }
-                await db.ref('/lastUpdate').set(lastUpdateStr);
-                console.log(`RTDB: global Last Update time set to: ${lastUpdateStr}`);
-            })();
-
-            // Parallel dual-write: bulk upsert to Supabase (does not block / fail RTDB).
-            const supabaseFlightsTask = syncFlightsToSupabase(structuredData, lastUpdateStr)
-                .catch((err) => {
-                    console.error('Supabase flight sync failed (RTDB unaffected):', err.message);
-                    return { error: err.message };
-                });
-
-            const [firebaseResult, supabaseResult] = await Promise.allSettled([
-                firebaseFlightsTask,
-                supabaseFlightsTask,
-            ]);
-
-            if (firebaseResult.status === 'rejected') {
-                console.error('RTDB flight sync failed:', firebaseResult.reason);
-            }
-            if (supabaseResult.status === 'fulfilled') {
-                console.log('Supabase flight sync result:', supabaseResult.value);
-            }
-
-            try {
-                await syncWeatherToFirebase(db);
-            } catch (weatherError) {
-                console.error('Weather sync failed after flight sync:', weatherError.message);
-            }
-
-            process.exit(firebaseResult.status === 'rejected' ? 1 : 0);
+        try {
+            await collectWeatherAndSyncToSupabase();
+        } catch (weatherError) {
+            console.error('Weather sync failed after flight sync:', weatherError.message);
         }
+
+        process.exit(0);
 
     } catch (error) {
         console.error('Fatal Error:', error);
+        process.exit(1);
     }
 }
 
