@@ -46,7 +46,7 @@ function normalizeRows(rows) {
   });
 }
 
-async function upsertTable(url, key, table, rows, onConflict) {
+async function upsertTable(url, key, table, rows, onConflict, prefer = 'resolution=merge-duplicates,return=minimal') {
   if (!rows.length) return 0;
   const normalized = normalizeRows(rows);
   let written = 0;
@@ -54,7 +54,7 @@ async function upsertTable(url, key, table, rows, onConflict) {
     const chunk = normalized.slice(i, i + CHUNK_SIZE);
     const path = `${table}?on_conflict=${encodeURIComponent(onConflict)}`;
     await axios.post(`${url}/rest/v1/${path}`, chunk, {
-      headers: restHeaders(key),
+      headers: restHeaders(key, prefer),
       timeout: 120000,
       validateStatus: (status) => status >= 200 && status < 300,
     });
@@ -124,7 +124,6 @@ async function resolveCityIds(url, key, cityNames) {
 async function syncFlightsToSupabase(structuredData, lastUpdateStr) {
   const { url, key } = getConfig();
   const flightRows = [];
-  const airlinesByCode = new Map();
   const cityNames = Object.keys(structuredData || {});
 
   const cityIdsByName = await resolveCityIds(url, key, cityNames);
@@ -144,9 +143,6 @@ async function syncFlightsToSupabase(structuredData, lastUpdateStr) {
         if (!fl || typeof fl !== 'object') continue;
 
         const airline = fl.airline != null ? String(fl.airline).trim() : '';
-        if (airline) {
-          airlinesByCode.set(airline, { code: airline, name: airline });
-        }
 
         flightRows.push({
           city_id: cityId,
@@ -167,13 +163,11 @@ async function syncFlightsToSupabase(structuredData, lastUpdateStr) {
   }
 
   console.log(
-    `Supabase: upserting ${airlinesByCode.size} airline stubs + ${flightRows.length} flights (bulk via city_id)...`
+    `Supabase: upserting ${flightRows.length} flights (bulk via city_id)...`
   );
   const started = Date.now();
 
-  if (airlinesByCode.size > 0) {
-    await upsertTable(url, key, 'airlines', [...airlinesByCode.values()], 'code');
-  }
+  // Do not write airlines — that table is admin-curated majors only.
 
   const flightsWritten = await upsertTable(
     url,
@@ -201,7 +195,6 @@ async function syncFlightsToSupabase(structuredData, lastUpdateStr) {
   );
   return {
     skipped: false,
-    airlines: airlinesByCode.size,
     flights: flightsWritten,
     cities: cityIdsByName.size,
   };
