@@ -113,6 +113,40 @@ async function resolveCityIds(url, key, cityNames) {
   return byName;
 }
 
+function compactFlnr(value) {
+  return String(value || '').replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+}
+
+function directionLetter(direction) {
+  return direction === 'Arrival' ? 'A' : 'D';
+}
+
+function dateFromStm(stm) {
+  const d = String(stm || '').replace(/\D/g, '');
+  return d.slice(0, 6) || '000000';
+}
+
+/** `{cityId}_{D|A}_{FLNR}_{YYMMDD}` — no hour/minute. */
+function buildFlightKey(cityId, direction, fl) {
+  return `${cityId}_${directionLetter(direction)}_${compactFlnr(fl.flnr)}_${dateFromStm(fl.stm)}`;
+}
+
+function isFinishedStatus(premLu) {
+  const s = String(premLu || '').toUpperCase();
+  return s.includes('DEPARTED') || s.includes('LANDED') || s.includes('ARRIVED');
+}
+
+function mergeFlightRows(a, b) {
+  const aDone = isFinishedStatus(a.prem_lu);
+  const bDone = isFinishedStatus(b.prem_lu);
+  const keep = (!aDone && bDone) ? b : (aDone && !bDone) ? a : b;
+  const other = keep === b ? a : b;
+  const out = { ...other, ...keep };
+  if (!out.att && other.att) out.att = other.att;
+  if (!out.est && other.est) out.est = other.est;
+  return out;
+}
+
 /**
  * Bulk-upsert website-managed flight fields into public.flights.
  * Uses cities.id FK (city_id). City name comes from public.cities via v_flights.
@@ -123,10 +157,9 @@ async function resolveCityIds(url, key, cityNames) {
  */
 async function syncFlightsToSupabase(structuredData, lastUpdateStr) {
   const { url, key } = getConfig();
-  const flightRows = [];
   const cityNames = Object.keys(structuredData || {});
-
   const cityIdsByName = await resolveCityIds(url, key, cityNames);
+  const flightByKey = new Map();
 
   for (const city of cityNames) {
     const cityId = cityIdsByName.get(city);
@@ -138,16 +171,16 @@ async function syncFlightsToSupabase(structuredData, lastUpdateStr) {
     for (const direction of Object.keys(directions)) {
       if (direction !== 'Arrival' && direction !== 'Departure') continue;
       const flights = directions[direction] || {};
-      for (const flightKey of Object.keys(flights)) {
-        const fl = flights[flightKey];
+      for (const scrapeKey of Object.keys(flights)) {
+        const fl = flights[scrapeKey];
         if (!fl || typeof fl !== 'object') continue;
 
         const airline = fl.airline != null ? String(fl.airline).trim() : '';
-
-        flightRows.push({
+        const flightKey = buildFlightKey(cityId, direction, fl);
+        const row = {
           city_id: cityId,
           direction,
-          flight_key: String(flightKey),
+          flight_key: flightKey,
           airline_code: airline || null,
           flnr: fl.flnr ?? null,
           stm: fl.stm ?? null,
@@ -157,10 +190,14 @@ async function syncFlightsToSupabase(structuredData, lastUpdateStr) {
           att: fl.att ?? null,
           est: fl.est ?? null,
           last_updated: new Date().toISOString(),
-        });
+        };
+        const prev = flightByKey.get(flightKey);
+        flightByKey.set(flightKey, prev ? mergeFlightRows(prev, row) : row);
       }
     }
   }
+
+  const flightRows = [...flightByKey.values()];
 
   console.log(
     `Supabase: upserting ${flightRows.length} flights (bulk via city_id)...`

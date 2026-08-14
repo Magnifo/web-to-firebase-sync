@@ -82,13 +82,13 @@ async function main() {
             const city = flight._sourceCity;
             const type = flight._fetchedType;
 
-            // Generate Key: YYMMDDHHMM_FlightNumber
-            // Ensure we capture this BEFORE deleting _fetchedDate
+            // Stable key within city+type: FlightNumber_YYMMDD (no HHMM).
+            // Retime on the same day updates this row instead of creating a duplicate.
             const dateKey = flight._fetchedDate ? moment(flight._fetchedDate, 'YYYY-MM-DD').format('YYMMDD') : '000000';
             const timeKey = flight.ST ? flight.ST.replace(/:/g, '') : '0000';
             const flightNumOriginal = flight.FlightNumber || 'UNKNOWN';
             const flightNumKey = flightNumOriginal.replace(/[^a-zA-Z0-9]/g, '');
-            const uniqueKey = `${dateKey}${timeKey}_${flightNumKey}`;
+            const uniqueKey = `${flightNumKey}_${dateKey}`;
 
             if (!structuredData[city]) {
                 structuredData[city] = {
@@ -215,7 +215,10 @@ async function main() {
             delete flight.Nature; // Should already be handled but ensuring cleanup.
 
             if (structuredData[city][type]) {
-                structuredData[city][type][uniqueKey] = flight;
+                const prev = structuredData[city][type][uniqueKey];
+                structuredData[city][type][uniqueKey] = prev
+                    ? mergeScrapeFlights(prev, flight)
+                    : flight;
             }
         });
 
@@ -267,6 +270,23 @@ async function main() {
         console.error('Fatal Error:', error);
         process.exit(1);
     }
+}
+
+function isFinishedStatus(premLu) {
+    const s = String(premLu || '').toUpperCase();
+    return s.includes('DEPARTED') || s.includes('LANDED') || s.includes('ARRIVED');
+}
+
+/** Same city+type+number+date: keep the live row, copy att/est from the other. */
+function mergeScrapeFlights(prev, next) {
+    const prevDone = isFinishedStatus(prev.prem_lu);
+    const nextDone = isFinishedStatus(next.prem_lu);
+    const keep = (!prevDone && nextDone) ? next : (prevDone && !nextDone) ? prev : next;
+    const other = keep === next ? prev : next;
+    const out = { ...other, ...keep };
+    if (!out.att && other.att) out.att = other.att;
+    if (!out.est && other.est) out.est = other.est;
+    return out;
 }
 
 function generateReport(flights) {
